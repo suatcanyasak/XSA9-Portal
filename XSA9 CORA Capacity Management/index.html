@@ -635,16 +635,16 @@
 
             // --- HEADCOUNT UI YAZDIRMA ---
             document.getElementById(`hc-nocharge-${c}`).innerHTML = 
-                `<span class="main-val hc-nocharge">${formatCustomNumber(hcNoS + hcNoM)} Pxl</span>
+                `<span class="main-val hc-nocharge">${formatCustomNumber(hcNoS + hcNoM)} HC</span>
                  <span class="val-subtext">S: ${formatCustomNumber(hcNoS)} | M: ${formatCustomNumber(hcNoM)}</span>`;
                  
             document.getElementById(`hc-charge-${c}`).innerHTML = 
-                `<span class="main-val hc-charge">${formatCustomNumber(hcChS + hcChM)} Pxl</span>
+                `<span class="main-val hc-charge">${formatCustomNumber(hcChS + hcChM)} HC</span>
                  <span class="val-subtext">S: ${formatCustomNumber(hcChS)} | M: ${formatCustomNumber(hcChM)}</span>`;
                  
             if(rawCustomS > 0 || rawCustomM > 0) {
                 document.getElementById(`hc-target-${c}`).innerHTML = 
-                    `<span class="main-val hc-target">${formatCustomNumber(hcTarS + hcTarM)} Pxl</span>
+                    `<span class="main-val hc-target">${formatCustomNumber(hcTarS + hcTarM)} HC</span>
                      <span class="val-subtext">S: ${formatCustomNumber(hcTarS)} | M: ${formatCustomNumber(hcTarM)}</span>`;
             } else {
                 document.getElementById(`hc-target-${c}`).innerHTML = "-";
