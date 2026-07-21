@@ -16,7 +16,7 @@
         /* Renk Değişkenleri (Açık ve Koyu Tema İçin Modern Palet) */
         :root {
             --bg-color: #f1f5f9;
-            --text-color8: #1e293b;
+            --text-color: #1e293b;
             --header-color: #0f172a;
             --card-bg: #ffffff;
             --paste-bg: #f8fafc;
@@ -36,7 +36,7 @@
             --selected-border: #2563eb;
             --warning-bg: #fee2e2;
             --warning-text: #991b1b;
-            --target-text: #059669; /* Hedef Kapasite Rengi */
+            --target-text: #059669;
             --btn-primary: #2563eb;
             --btn-primary-hover: #1d4ed8;
             --btn-danger: #ef4444;
@@ -67,7 +67,7 @@
             --selected-border: #60a5fa;
             --warning-bg: #7f1d1d;
             --warning-text: #fca5a5;
-            --target-text: #34d399; /* Karanlık Tema Hedef Kapasite Rengi */
+            --target-text: #34d399;
         }
 
         body { font-family: 'Inter', sans-serif; margin: 20px; background-color: var(--bg-color); color: var(--text-color); transition: background 0.3s, color 0.3s; }
@@ -95,7 +95,6 @@
         .action-btns button.dark { background-color: var(--btn-dark); }
         .action-btns button.dark:hover { background-color: var(--btn-dark-hover); transform: translateY(-1px); }
         
-        /* Accordion (Katlanabilir Başlık) Stilleri */
         .section-header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 12px 20px; border-radius: 10px; margin-top: 25px; margin-bottom: 15px; cursor: pointer; border: 1px solid var(--table-border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: background 0.2s; }
         .section-header:hover { background: var(--hover-bg); }
         .section-header h2 { margin: 0; color: var(--header-color); font-weight: 600; font-size: 18px; }
@@ -112,25 +111,35 @@
         th { white-space: pre-wrap; text-align: center !important; background-color: var(--th-bg); font-weight: 600; }
         td { white-space: nowrap; background-color: var(--td-bg); }
 
-        .data-table td.text-cell, .total-table td.text-cell, .stats-table td.text-cell { font-weight: 600; white-space: normal; text-align: left; }
-        .data-table td.number-cell, .total-table td.number-cell, .stats-table td.number-cell { text-align: center; }
+        .data-table td.text-cell, .total-table td.text-cell, .metrics-table td.text-cell { font-weight: 600; white-space: normal; text-align: left; }
+        .data-table td.number-cell, .total-table td.number-cell, .metrics-table td.number-cell { text-align: center; }
 
         .row-h td { background-color: var(--row-h) !important; border-color: rgba(0,0,0,0.05); }
         .row-i td { background-color: var(--row-i) !important; border-color: rgba(0,0,0,0.05); }
         .row-j td { background-color: var(--row-j) !important; border-color: rgba(0,0,0,0.05); }
 
-        .total-table th.col-selectable { cursor: pointer; user-select: none; transition: background-color 0.2s ease; }
-        .total-table th.col-selectable:hover { background-color: var(--hover-bg); }
-        
-        .total-table th.col-selected { background-color: var(--selected-th) !important; outline: 2px solid var(--selected-border); outline-offset: -2px; }
-        .total-table td.col-selected { background-color: var(--selected-td) !important; border-left: 2px solid var(--selected-border) !important; border-right: 2px solid var(--selected-border) !important; }
-        
         .warning-cell { background-color: var(--warning-bg) !important; color: var(--warning-text) !important; font-weight: 700; }
 
         .assumptions { display: inline-block; padding: 6px 12px; font-size: 12px; margin-bottom: 10px; border-radius: 6px; background-color: var(--card-bg); border: 1px solid var(--cell-border); color: var(--text-color); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .stats-table { width: auto; min-width: 60%; margin-top: 15px; border-radius: 8px; overflow: hidden; }
-        .selection-hint { display: inline-block; padding: 8px 14px; background-color: var(--selected-td); border-left: 4px solid var(--selected-border); color: var(--btn-primary); font-size: 13px; font-weight: 600; border-radius: 4px; margin-bottom: 15px; }
-        [data-theme="dark"] .selection-hint { color: #60a5fa; }
+        
+        /* Dinamik Metrik Tablosu Özel Stilleri */
+        .dt-input { width: 60px; padding: 4px; text-align: center; border: 1px solid var(--cell-border); border-radius: 4px; background: var(--td-bg); color: var(--text-color); }
+        .dt-input:focus { border-color: var(--btn-primary); outline: none; }
+        .metrics-table { min-width: 100%; margin-top: 10px; }
+        .metrics-table th.metric-title { background-color: var(--th-bg); width: 280px; text-align: left !important; }
+        .val-subtext { font-size: 11px; opacity: 0.8; display: block; margin-top: 2px; }
+        .main-val { font-weight: bold; font-size: 14px; }
+        .hc-nocharge { color: var(--btn-primary); }
+        .hc-charge { color: var(--warning-text); }
+        .hc-target { color: var(--target-text); }
+        
+        /* Satır gruplandırmalarını belirginleştirmek için arkaplan renkleri */
+        .metrics-table tr.bg-light-blue td { background-color: #f8fafc; }
+        .metrics-table tr.bg-light-red td { background-color: #fef2f2; }
+        .metrics-table tr.bg-light-green td { background-color: #f0fdf4; }
+        [data-theme="dark"] .metrics-table tr.bg-light-blue td { background-color: #1e293b; }
+        [data-theme="dark"] .metrics-table tr.bg-light-red td { background-color: #2e1015; }
+        [data-theme="dark"] .metrics-table tr.bg-light-green td { background-color: #064e3b; }
     </style>
 </head>
 <body>
@@ -139,10 +148,6 @@
         <div>
             <div class="time-box">Sistem Zamanı: <span id="clock"></span></div>
             <div class="input-group">
-                <div class="input-item">
-                    <label>Planned Downtime (min):</label>
-                    <input type="number" id="downtime-input" placeholder="15" min="0">
-                </div>
                 <div class="input-item">
                     <label>Singles Target UPH:</label>
                     <input type="number" id="uph-singles" value="200" min="1">
@@ -202,68 +207,16 @@
                 </div>
             </div>
             
-            <div class="selection-hint" data-html2canvas-ignore="true">ℹ️ Metric hesaplamalarını görmek için aşağıdaki tablodan bir saate (CPT) tıklayın.</div>
             <div id="total-table-container" class="table-container"></div>
             
             <div class="table-container" style="padding: 20px;">
                 <canvas id="utilizationChart" style="max-height: 280px;"></canvas>
             </div>
 
-            <div id="stats-container" style="display: none;">
-                <div class="table-container">
-                    <h3 style="margin-top: 5px; margin-bottom: 15px; font-size: 16px; color: var(--header-color);">Metrics Overview & Headcount Requirement</h3>
-                    <table class="stats-table" style="width: 100%;">
-                        <tr class="header-row">
-                            <th>Metric</th>
-                            <th>Singles</th>
-                            <th>Multis</th>
-                            <th>Aggregate</th>
-                        </tr>
-                        <tr>
-                            <td class="text-cell">Planned duration up to selected date (hr:min):</td>
-                            <td class="number-cell" id="dur-singles">-</td>
-                            <td class="number-cell" id="dur-multis">-</td>
-                            <td class="number-cell" id="dur-total">-</td>
-                        </tr>
-                        <tr>
-                            <td class="text-cell">Required hourly output (without a charge):</td>
-                            <td class="number-cell" id="req-no-charge-singles">-</td>
-                            <td class="number-cell" id="req-no-charge-multis">-</td>
-                            <td class="number-cell" id="req-no-charge-total">-</td>
-                        </tr>
-                        <tr>
-                            <td class="text-cell" style="color: var(--btn-primary);">Required Headcount (without a charge):</td>
-                            <td class="number-cell" id="hc-no-charge-singles" style="font-weight: bold; color: var(--btn-primary);">-</td>
-                            <td class="number-cell" id="hc-no-charge-multis" style="font-weight: bold; color: var(--btn-primary);">-</td>
-                            <td class="number-cell" id="hc-no-charge-total" style="font-weight: bold; color: var(--btn-primary);">-</td>
-                        </tr>
-                        <tr>
-                            <td class="text-cell">Required hourly output (with expected charge):</td>
-                            <td class="number-cell" id="req-charge-singles">-</td>
-                            <td class="number-cell" id="req-charge-multis">-</td>
-                            <td class="number-cell" id="req-charge-total">-</td>
-                        </tr>
-                        <tr>
-                            <td class="text-cell" style="color: var(--warning-text);">Required Headcount (with expected charge):</td>
-                            <td class="number-cell" id="hc-charge-singles" style="font-weight: bold; color: var(--warning-text);">-</td>
-                            <td class="number-cell" id="hc-charge-multis" style="font-weight: bold; color: var(--warning-text);">-</td>
-                            <td class="number-cell" id="hc-charge-total" style="font-weight: bold; color: var(--warning-text);">-</td>
-                        </tr>
-                        <!-- YENİ EKLENEN HEDEF KAPASİTE ALANLARI -->
-                        <tr>
-                            <td class="text-cell">Required hourly output (Target Capacity):</td>
-                            <td class="number-cell" id="req-custom-singles">-</td>
-                            <td class="number-cell" id="req-custom-multis">-</td>
-                            <td class="number-cell" id="req-custom-total">-</td>
-                        </tr>
-                        <tr>
-                            <td class="text-cell" style="color: var(--target-text);">Required Headcount (Target Capacity):</td>
-                            <td class="number-cell" id="hc-custom-singles" style="font-weight: bold; color: var(--target-text);">-</td>
-                            <td class="number-cell" id="hc-custom-multis" style="font-weight: bold; color: var(--target-text);">-</td>
-                            <td class="number-cell" id="hc-custom-total" style="font-weight: bold; color: var(--target-text);">-</td>
-                        </tr>
-                    </table>
-                </div>
+            <!-- Yeni Tüm Saatler İçin Metrik Tablosu -->
+            <div id="metrics-container" class="table-container" style="display: none;">
+                <h3 style="margin-top: 5px; margin-bottom: 15px; font-size: 16px; color: var(--header-color);">Metrics & Headcount (All CPTs)</h3>
+                <div id="metrics-table-inner" style="overflow-x: auto;"></div>
             </div>
         </div>
     </div>
@@ -280,19 +233,15 @@
     let multisData = null;
     let currentTotalData = null;
     let tablesLoadedTime = null;
-    let selectedTotalColumn = null;
     let chartInstance = null;
 
     document.getElementById('singles-paste-zone').addEventListener('paste', e => handlePaste(e, 'singles'));
     document.getElementById('multis-paste-zone').addEventListener('paste', e => handlePaste(e, 'multis'));
     
-    // İnput değerleri değiştiğinde istatistikleri otomatik güncelle
-    document.getElementById('downtime-input').addEventListener('input', updateOutputStats);
-    document.getElementById('uph-singles').addEventListener('input', updateOutputStats);
-    document.getElementById('uph-multis').addEventListener('input', updateOutputStats);
-    document.getElementById('custom-target-input').addEventListener('input', updateOutputStats); // Yeni input dinleyicisi
+    document.getElementById('uph-singles').addEventListener('input', updateAllMetrics);
+    document.getElementById('uph-multis').addEventListener('input', updateAllMetrics);
+    document.getElementById('custom-target-input').addEventListener('input', updateAllMetrics);
 
-    // Accordion Aç/Kapat Fonksiyonu
     function toggleSection(wrapperId, headerElement) {
         const wrapper = document.getElementById(wrapperId);
         if (wrapper.style.display === 'none') {
@@ -306,12 +255,13 @@
 
     function resetDashboard() {
         singlesData = null; multisData = null; currentTotalData = null;
-        tablesLoadedTime = null; selectedTotalColumn = null;
+        tablesLoadedTime = null; 
         if(chartInstance) chartInstance.destroy();
 
         document.getElementById('singles-table-container').innerHTML = '';
         document.getElementById('multis-table-container').innerHTML = '';
         document.getElementById('total-table-container').innerHTML = '';
+        document.getElementById('metrics-table-inner').innerHTML = '';
 
         document.getElementById('singles-table-container').style.display = 'none';
         document.getElementById('multis-table-container').style.display = 'none';
@@ -320,9 +270,8 @@
         document.getElementById('multis-paste-zone').style.display = 'block';
         
         document.getElementById('report-wrap').style.display = 'none';
-        document.getElementById('stats-container').style.display = 'none';
+        document.getElementById('metrics-container').style.display = 'none';
         
-        document.getElementById('downtime-input').value = '';
         document.getElementById('custom-target-input').value = '';
     }
 
@@ -330,7 +279,7 @@
         let body = document.body;
         if(body.getAttribute('data-theme') === 'dark') body.removeAttribute('data-theme');
         else body.setAttribute('data-theme', 'dark');
-        if(currentTotalData) drawChart(currentTotalData, determineDataStartCol(currentTotalData)); // Temaya göre grafiği yenile
+        if(currentTotalData) drawChart(currentTotalData, determineDataStartCol(currentTotalData));
     }
 
     function exportToPDF() {
@@ -472,7 +421,10 @@
         currentTotalData = totalData;
         renderTotalTable(totalData, dataStart);
         document.getElementById('report-wrap').style.display = 'block';
-        updateOutputStats();
+        
+        buildMetricsTableStructure(totalData, dataStart);
+        updateAllMetrics();
+        
         drawChart(totalData, dataStart);
     }
 
@@ -484,14 +436,9 @@
             let rowClass = isHeader ? 'header-row' : getRowClass(rowText);
             html += `<tr class="${rowClass}">`;
             row.forEach((cell, j) => {
-                const isDateColumn = j >= dataStart; 
-                const isSelected = isDateColumn && selectedTotalColumn === j;
                 let classes = [];
-                
                 if (j < dataStart && !isHeader) classes.push('text-cell');
                 if (j >= dataStart && !isHeader) classes.push('number-cell');
-                if (isSelected) classes.push('col-selected');
-                if (isHeader && isDateColumn) classes.push('col-selectable');
                 
                 if (j >= dataStart && !isHeader) {
                     let val = parseFloat(cell) || 0;
@@ -500,25 +447,209 @@
                 }
 
                 const cellClass = classes.length ? `class="${classes.join(' ')}"` : '';
-                const clickAttr = (isHeader && isDateColumn) ? `data-col-index="${j}"` : '';
-                
                 let displayCell = cell;
-                if (isHeader && isDateColumn && cell.length >= 10) displayCell = cell.substring(0, 5) + '<br>' + cell.substring(5);
-                html += isHeader ? `<th ${cellClass} ${clickAttr}>${displayCell}</th>` : `<td ${cellClass}>${cell}</td>`;
+                if (isHeader && j >= dataStart && cell.length >= 10) displayCell = cell.substring(0, 5) + '<br>' + cell.substring(5);
+                html += isHeader ? `<th ${cellClass}>${displayCell}</th>` : `<td ${cellClass}>${cell}</td>`;
             });
             html += '</tr>';
         });
         html += '</table>';
-        
         document.getElementById('total-table-container').innerHTML = html;
-        document.querySelectorAll('#total-table-container th.col-selectable').forEach(th => {
-            th.addEventListener('click', () => {
-                const colIndex = parseInt(th.getAttribute('data-col-index'), 10);
-                selectedTotalColumn = (selectedTotalColumn === colIndex) ? null : colIndex;
-                renderTotalTable(data, dataStart); 
-                updateOutputStats();
-            });
-        });
+    }
+
+    function buildMetricsTableStructure(data, dataStart) {
+        const container = document.getElementById('metrics-container');
+        const inner = document.getElementById('metrics-table-inner');
+        container.style.display = 'block';
+
+        let html = '<table class="metrics-table">';
+        
+        // Başlıklar
+        html += '<tr class="header-row"><th class="metric-title">Metric \\ CPT</th>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            let val = data[0][c];
+            let displayCell = (val.length >= 10) ? val.substring(0, 5) + '<br>' + val.substring(5) : val;
+            html += `<th>${displayCell}</th>`;
+        }
+        html += '</tr>';
+
+        // Downtime Girişleri
+        html += '<tr><td class="text-cell">Planned Downtime Entry (min)</td>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            html += `<td class="number-cell"><input type="number" class="dt-input" data-col="${c}" placeholder="0" min="0" oninput="updateAllMetrics()"></td>`;
+        }
+        html += '</tr>';
+
+        html += '<tr><td class="text-cell">Cumulative Downtime (min)</td>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            html += `<td class="number-cell" style="font-weight:bold;" id="cumul-dt-${c}">0</td>`;
+        }
+        html += '</tr>';
+
+        html += '<tr><td class="text-cell">Planned Duration (hr:min)</td>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            html += `<td class="number-cell" id="net-dur-${c}">-</td>`;
+        }
+        html += '</tr>';
+
+        // --- BÖLÜM 1: NO CHARGE ---
+        html += '<tr class="bg-light-blue"><td class="text-cell">Required hourly output (Without a charge)</td>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            html += `<td class="number-cell" id="out-nocharge-${c}">-</td>`;
+        }
+        html += '</tr>';
+
+        html += '<tr class="bg-light-blue"><td class="text-cell hc-nocharge">Required Headcount (Without a charge)</td>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            html += `<td class="number-cell" id="hc-nocharge-${c}">-</td>`;
+        }
+        html += '</tr>';
+
+        // --- BÖLÜM 2: EXPECTED CHARGE ---
+        html += '<tr class="bg-light-red"><td class="text-cell">Required hourly output (With expected charge)</td>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            html += `<td class="number-cell" id="out-charge-${c}">-</td>`;
+        }
+        html += '</tr>';
+
+        html += '<tr class="bg-light-red"><td class="text-cell hc-charge">Required Headcount (With expected charge)</td>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            html += `<td class="number-cell" id="hc-charge-${c}">-</td>`;
+        }
+        html += '</tr>';
+
+        // --- BÖLÜM 3: TARGET CAPACITY ---
+        html += '<tr class="bg-light-green"><td class="text-cell">Required hourly output (Target Capacity)</td>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            html += `<td class="number-cell" id="out-target-${c}">-</td>`;
+        }
+        html += '</tr>';
+
+        html += '<tr class="bg-light-green"><td class="text-cell hc-target">Required Headcount (Target Capacity)</td>';
+        for (let c = dataStart; c < data[0].length; c++) {
+            html += `<td class="number-cell" id="hc-target-${c}">-</td>`;
+        }
+        html += '</tr>';
+
+        html += '</table>';
+        inner.innerHTML = html;
+    }
+
+    function updateAllMetrics() {
+        if (!currentTotalData || !tablesLoadedTime) return;
+        
+        let dataStart = determineDataStartCol(currentTotalData);
+        let numCols = currentTotalData[0].length;
+
+        let uphS = parseInt(document.getElementById('uph-singles').value, 10) || 1;
+        let uphM = parseInt(document.getElementById('uph-multis').value, 10) || 1;
+        let customTarget = parseInt(document.getElementById('custom-target-input').value, 10);
+
+        let cumulativeDowntime = 0;
+
+        let startS = determineDataStartCol(singlesData);
+        let startM = determineDataStartCol(multisData);
+
+        let r_nS = getRowIndexByKeyword(singlesData, startS, 'cumulative units without new charge due');
+        let r_cS = getRowIndexByKeyword(singlesData, startS, 'cumulative projected units due out');
+        let r_nM = getRowIndexByKeyword(multisData, startM, 'cumulative units without new charge due');
+        let r_cM = getRowIndexByKeyword(multisData, startM, 'cumulative projected units due out');
+        
+        let r_hS = getRowIndexByKeyword(singlesData, startS, 'ship capacity');
+        let r_hM = getRowIndexByKeyword(multisData, startM, 'ship capacity');
+
+        for (let c = dataStart; c < numCols; c++) {
+            let inputField = document.querySelector(`.dt-input[data-col="${c}"]`);
+            let dtVal = parseInt(inputField.value, 10) || 0;
+            cumulativeDowntime += dtVal;
+
+            document.getElementById(`cumul-dt-${c}`).textContent = cumulativeDowntime;
+
+            let headerStr = currentTotalData[0][c];
+            let targetDate = parseHeaderDate(headerStr, tablesLoadedTime);
+            if (!targetDate) continue;
+
+            let diffMs = (targetDate - tablesLoadedTime) - (15 * 60000); 
+            let diffMinutes = diffMs / 60000;
+            let netMinutes = diffMinutes - cumulativeDowntime; 
+
+            if (netMinutes <= 0) {
+                document.getElementById(`net-dur-${c}`).textContent = "N/A";
+                ['out-nocharge', 'hc-nocharge', 'out-charge', 'hc-charge', 'out-target', 'hc-target'].forEach(prefix => {
+                    document.getElementById(`${prefix}-${c}`).innerHTML = "-";
+                });
+                continue;
+            }
+
+            let h = Math.floor(netMinutes / 60);
+            let m = Math.floor(netMinutes % 60);
+            document.getElementById(`net-dur-${c}`).textContent = `${h}:${m.toString().padStart(2, '0')}`;
+            let netHours = netMinutes / 60;
+
+            // Output Calculations
+            let rawNoChargeS = r_nS > 0 ? parseCustomNumber(singlesData[r_nS][c]) / netHours : 0;
+            let rawChargeS = r_cS > 0 ? parseCustomNumber(singlesData[r_cS][c]) / netHours : 0;
+            let rawNoChargeM = r_nM > 0 ? parseCustomNumber(multisData[r_nM][c]) / netHours : 0;
+            let rawChargeM = r_cM > 0 ? parseCustomNumber(multisData[r_cM][c]) / netHours : 0;
+
+            // HC Calculations
+            let hcNoS = Math.ceil(rawNoChargeS / uphS);
+            let hcNoM = Math.ceil(rawNoChargeM / uphM);
+            let hcChS = Math.ceil(rawChargeS / uphS);
+            let hcChM = Math.ceil(rawChargeM / uphM);
+
+            // Target Calculations
+            let rawCustomS = 0, rawCustomM = 0;
+            if (!isNaN(customTarget) && customTarget > 0) {
+                let capS = r_hS > 0 ? parseCustomNumber(singlesData[r_hS][c]) : 0;
+                let capM = r_hM > 0 ? parseCustomNumber(multisData[r_hM][c]) : 0;
+                let capT = capS + capM;
+                let ratioS = capT > 0 ? (capS / capT) : 0.5;
+                let ratioM = capT > 0 ? (capM / capT) : 0.5;
+                let rawCustomT = customTarget / netHours;
+                rawCustomS = rawCustomT * ratioS;
+                rawCustomM = rawCustomT * ratioM;
+            } else {
+                if (r_hS > 0) rawCustomS = parseCustomNumber(singlesData[r_hS][c]) / netHours;
+                if (r_hM > 0) rawCustomM = parseCustomNumber(multisData[r_hM][c]) / netHours;
+            }
+            let hcTarS = Math.ceil(rawCustomS / uphS);
+            let hcTarM = Math.ceil(rawCustomM / uphM);
+
+            // --- OUTPUT UI YAZDIRMA ---
+            document.getElementById(`out-nocharge-${c}`).innerHTML = 
+                `<span class="main-val">${formatCustomNumber(Math.round(rawNoChargeS + rawNoChargeM))}</span>
+                 <span class="val-subtext">S: ${formatCustomNumber(Math.round(rawNoChargeS))} | M: ${formatCustomNumber(Math.round(rawNoChargeM))}</span>`;
+
+            document.getElementById(`out-charge-${c}`).innerHTML = 
+                `<span class="main-val">${formatCustomNumber(Math.round(rawChargeS + rawChargeM))}</span>
+                 <span class="val-subtext">S: ${formatCustomNumber(Math.round(rawChargeS))} | M: ${formatCustomNumber(Math.round(rawChargeM))}</span>`;
+
+            if(rawCustomS > 0 || rawCustomM > 0) {
+                document.getElementById(`out-target-${c}`).innerHTML = 
+                    `<span class="main-val">${formatCustomNumber(Math.round(rawCustomS + rawCustomM))}</span>
+                     <span class="val-subtext">S: ${formatCustomNumber(Math.round(rawCustomS))} | M: ${formatCustomNumber(Math.round(rawCustomM))}</span>`;
+            } else {
+                document.getElementById(`out-target-${c}`).innerHTML = "-";
+            }
+
+            // --- HEADCOUNT UI YAZDIRMA ---
+            document.getElementById(`hc-nocharge-${c}`).innerHTML = 
+                `<span class="main-val hc-nocharge">${formatCustomNumber(hcNoS + hcNoM)} Pxl</span>
+                 <span class="val-subtext">S: ${formatCustomNumber(hcNoS)} | M: ${formatCustomNumber(hcNoM)}</span>`;
+                 
+            document.getElementById(`hc-charge-${c}`).innerHTML = 
+                `<span class="main-val hc-charge">${formatCustomNumber(hcChS + hcChM)} Pxl</span>
+                 <span class="val-subtext">S: ${formatCustomNumber(hcChS)} | M: ${formatCustomNumber(hcChM)}</span>`;
+                 
+            if(rawCustomS > 0 || rawCustomM > 0) {
+                document.getElementById(`hc-target-${c}`).innerHTML = 
+                    `<span class="main-val hc-target">${formatCustomNumber(hcTarS + hcTarM)} Pxl</span>
+                     <span class="val-subtext">S: ${formatCustomNumber(hcTarS)} | M: ${formatCustomNumber(hcTarM)}</span>`;
+            } else {
+                document.getElementById(`hc-target-${c}`).innerHTML = "-";
+            }
+        }
     }
 
     function drawChart(data, dataStart) {
@@ -568,137 +699,6 @@
         let d = new Date(baseDate.getFullYear(), month, day, hour, min, 0);
         if (baseDate.getMonth() === 11 && month === 0) d.setFullYear(baseDate.getFullYear() + 1);
         return d;
-    }
-
-    function updateOutputStats() {
-        const statsSection = document.getElementById('stats-container');
-        if (!currentTotalData || selectedTotalColumn === null) {
-            statsSection.style.display = 'none';
-            return;
-        }
-        statsSection.style.display = 'block';
-    
-        let dataStart = determineDataStartCol(currentTotalData);
-        let headerStr = currentTotalData[0][selectedTotalColumn];
-        let targetDate = parseHeaderDate(headerStr, tablesLoadedTime);
-        if (!targetDate) return;
-    
-        let diffMs = (targetDate - tablesLoadedTime) - (15 * 60000); 
-        let diffMinutes = diffMs / 60000;
-        let downtime = parseInt(document.getElementById('downtime-input').value, 10) || 0;
-        let netMinutes = diffMinutes - downtime;
-    
-        let durText = "00:00", netHours = 0;
-        if (netMinutes > 0) {
-            let h = Math.floor(netMinutes / 60), m = Math.floor(netMinutes % 60);
-            durText = `${h}:${m.toString().padStart(2, '0')}`;
-            netHours = netMinutes / 60;
-        } else if (netMinutes <= 0) {
-            durText = "N/A (Süre Dolmuş)";
-        }
-    
-        document.getElementById('dur-singles').textContent = durText;
-        document.getElementById('dur-multis').textContent = durText;
-        document.getElementById('dur-total').textContent = durText;
-    
-        // Variables for Output & Headcount
-        let rawNoChargeS = 0, rawChargeS = 0;
-        let rawNoChargeM = 0, rawChargeM = 0;
-        let rawNoChargeT = 0, rawChargeT = 0;
-        let rawCustomS = 0, rawCustomM = 0, rawCustomT = 0; // Hedef Kapasite İçin
-
-        if (netHours > 0) {
-            let startS = determineDataStartCol(singlesData);
-            let r_nS = getRowIndexByKeyword(singlesData, startS, 'cumulative units without new charge due');
-            let r_cS = getRowIndexByKeyword(singlesData, startS, 'cumulative projected units due out');
-            if (r_nS > 0) rawNoChargeS = parseCustomNumber(singlesData[r_nS][selectedTotalColumn]) / netHours;
-            if (r_cS > 0) rawChargeS = parseCustomNumber(singlesData[r_cS][selectedTotalColumn]) / netHours;
-    
-            let startM = determineDataStartCol(multisData);
-            let r_nM = getRowIndexByKeyword(multisData, startM, 'cumulative units without new charge due');
-            let r_cM = getRowIndexByKeyword(multisData, startM, 'cumulative projected units due out');
-            if (r_nM > 0) rawNoChargeM = parseCustomNumber(multisData[r_nM][selectedTotalColumn]) / netHours;
-            if (r_cM > 0) rawChargeM = parseCustomNumber(multisData[r_cM][selectedTotalColumn]) / netHours;
-    
-            let r_nT = getRowIndexByKeyword(currentTotalData, dataStart, 'cumulative units without new charge due');
-            let r_cT = getRowIndexByKeyword(currentTotalData, dataStart, 'cumulative projected units due out');
-            if (r_nT > 0) rawNoChargeT = parseCustomNumber(currentTotalData[r_nT][selectedTotalColumn]) / netHours;
-            if (r_cT > 0) rawChargeT = parseCustomNumber(currentTotalData[r_cT][selectedTotalColumn]) / netHours;
-
-            // Hedef Kapasite Hesaplamaları (Custom / Ship Capacity)
-            let customTarget = parseInt(document.getElementById('custom-target-input').value, 10);
-            
-            if (!isNaN(customTarget) && customTarget > 0) {
-                // Manuel bir hedef girildiyse: Singles ve Multis'e tablodaki kapasite oranlarına göre paylaştır.
-                let r_hS = getRowIndexByKeyword(singlesData, startS, 'ship capacity');
-                let r_hM = getRowIndexByKeyword(multisData, startM, 'ship capacity');
-                let capS = r_hS > 0 ? parseCustomNumber(singlesData[r_hS][selectedTotalColumn]) : 0;
-                let capM = r_hM > 0 ? parseCustomNumber(multisData[r_hM][selectedTotalColumn]) : 0;
-                let capT = capS + capM;
-                
-                let ratioS = capT > 0 ? (capS / capT) : 0.5;
-                let ratioM = capT > 0 ? (capM / capT) : 0.5;
-                
-                rawCustomT = customTarget / netHours;
-                rawCustomS = rawCustomT * ratioS;
-                rawCustomM = rawCustomT * ratioM;
-            } else {
-                // Hedef girilmediyse, yapıştırılan tablolardaki "Ship Capacity" satırını baz al.
-                let r_hS = getRowIndexByKeyword(singlesData, startS, 'ship capacity');
-                let r_hM = getRowIndexByKeyword(multisData, startM, 'ship capacity');
-                let r_hT = getRowIndexByKeyword(currentTotalData, dataStart, 'ship capacity');
-                
-                if (r_hS > 0) rawCustomS = parseCustomNumber(singlesData[r_hS][selectedTotalColumn]) / netHours;
-                if (r_hM > 0) rawCustomM = parseCustomNumber(multisData[r_hM][selectedTotalColumn]) / netHours;
-                if (r_hT > 0) rawCustomT = parseCustomNumber(currentTotalData[r_hT][selectedTotalColumn]) / netHours;
-            }
-        }
-    
-        // Ekrana Çıktı (Output) yazdırma
-        document.getElementById('req-no-charge-singles').textContent = netHours > 0 ? formatCustomNumber(Math.round(rawNoChargeS)) : "-";
-        document.getElementById('req-no-charge-multis').textContent = netHours > 0 ? formatCustomNumber(Math.round(rawNoChargeM)) : "-";
-        document.getElementById('req-no-charge-total').textContent = netHours > 0 ? formatCustomNumber(Math.round(rawNoChargeT)) : "-";
-        
-        document.getElementById('req-charge-singles').textContent = netHours > 0 ? formatCustomNumber(Math.round(rawChargeS)) : "-";
-        document.getElementById('req-charge-multis').textContent = netHours > 0 ? formatCustomNumber(Math.round(rawChargeM)) : "-";
-        document.getElementById('req-charge-total').textContent = netHours > 0 ? formatCustomNumber(Math.round(rawChargeT)) : "-";
-
-        document.getElementById('req-custom-singles').textContent = (netHours > 0 && rawCustomT > 0) ? formatCustomNumber(Math.round(rawCustomS)) : "-";
-        document.getElementById('req-custom-multis').textContent = (netHours > 0 && rawCustomT > 0) ? formatCustomNumber(Math.round(rawCustomM)) : "-";
-        document.getElementById('req-custom-total').textContent = (netHours > 0 && rawCustomT > 0) ? formatCustomNumber(Math.round(rawCustomT)) : "-";
-
-        // Headcount (Personel İhtiyacı) Hesaplaması
-        let uphS = parseInt(document.getElementById('uph-singles').value, 10) || 1;
-        let uphM = parseInt(document.getElementById('uph-multis').value, 10) || 1;
-
-        if (netHours > 0) {
-            let hcNoChargeS = Math.ceil(rawNoChargeS / uphS);
-            let hcNoChargeM = Math.ceil(rawNoChargeM / uphM);
-            let hcChargeS = Math.ceil(rawChargeS / uphS);
-            let hcChargeM = Math.ceil(rawChargeM / uphM);
-            
-            let hcCustomS = Math.ceil(rawCustomS / uphS);
-            let hcCustomM = Math.ceil(rawCustomM / uphM);
-
-            document.getElementById('hc-no-charge-singles').textContent = formatCustomNumber(hcNoChargeS) + " Kişi";
-            document.getElementById('hc-no-charge-multis').textContent = formatCustomNumber(hcNoChargeM) + " Kişi";
-            document.getElementById('hc-no-charge-total').textContent = formatCustomNumber(hcNoChargeS + hcNoChargeM) + " Kişi";
-
-            document.getElementById('hc-charge-singles').textContent = formatCustomNumber(hcChargeS) + " Kişi";
-            document.getElementById('hc-charge-multis').textContent = formatCustomNumber(hcChargeM) + " Kişi";
-            document.getElementById('hc-charge-total').textContent = formatCustomNumber(hcChargeS + hcChargeM) + " Kişi";
-
-            if(rawCustomT > 0) {
-                document.getElementById('hc-custom-singles').textContent = formatCustomNumber(hcCustomS) + " Kişi";
-                document.getElementById('hc-custom-multis').textContent = formatCustomNumber(hcCustomM) + " Kişi";
-                document.getElementById('hc-custom-total').textContent = formatCustomNumber(hcCustomS + hcCustomM) + " Kişi";
-            } else {
-                ['hc-custom-singles', 'hc-custom-multis', 'hc-custom-total'].forEach(id => document.getElementById(id).textContent = "-");
-            }
-
-        } else {
-            ['hc-no-charge-singles', 'hc-no-charge-multis', 'hc-no-charge-total', 'hc-charge-singles', 'hc-charge-multis', 'hc-charge-total', 'hc-custom-singles', 'hc-custom-multis', 'hc-custom-total'].forEach(id => document.getElementById(id).textContent = "-");
-        }
     }
 
     function parseCustomNumber(str) {
