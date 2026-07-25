@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -136,6 +137,45 @@
             font-size: 13px;
             color: #3b82f6;
             display: block;
+        }
+
+        /* --- YENİ EKLENEN CPT TABLOSU STİLLERİ --- */
+        .cpt-table-container {
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            background: var(--background);
+        }
+        
+        .cpt-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .cpt-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .cpt-row td {
+            padding: 8px 10px;
+            text-align: left;
+            border: none;
+        }
+
+        .cpt-row:hover {
+            background-color: var(--table-header);
+        }
+
+        .cpt-row.selected-cpt {
+            background-color: var(--selected-row) !important;
+            font-weight: bold;
+            border-left: 4px solid var(--primary);
         }
 
         .main-content {
@@ -417,16 +457,16 @@
                 <input type="file" id="csvFile" accept=".csv" style="display:none">
             </div>
 
-            <h3 style="font-size:14px; border-bottom:1px solid var(--border); padding-bottom:4px; margin-top:20px; color:var(--primary);">🕒 TARİH & CPT ARALIĞI</h3>
+            <h3 style="font-size:14px; border-bottom:1px solid var(--border); padding-bottom:4px; margin-top:20px; color:var(--primary);">🕒 CPT SEÇİMİ</h3>
            
-            <div class="input-group">
-                <label>Başlangıç Zamanı (CPT)</label>
-                <input type="datetime-local" id="filterStartDate">
+            <div class="cpt-table-container">
+                <table class="cpt-table">
+                    <tbody id="cptTableBody">
+                        <tr><td style="text-align: center; color: var(--text-muted);">Henüz veri yüklenmedi</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="input-group">
-                <label>Bitiş Zamanı (CPT)</label>
-                <input type="datetime-local" id="filterEndDate">
-            </div>
+            <small style="display:block; font-size:10px; color:var(--text-muted); margin-top:-10px; margin-bottom:15px; text-align:center;">Birden fazla seçim yapabilirsiniz. Hiçbir şey seçmezseniz tüm liste dâhil edilir.</small>
 
             <div class="input-group" style="background-color: rgba(59, 130, 246, 0.08); padding: 10px; border-radius: 6px; border: 1px solid #bfdbfe; margin-top: 15px;">
                 <label style="color: var(--primary); font-weight: bold; margin-bottom: 4px;">⏱️ Hesaplama Başlangıç Zamanı</label>
@@ -536,9 +576,13 @@
 
 <script>
     let rawData = [];
+    let uniqueCPTs = [];
+    let selectedCPTs = new Set();
+    
     let ppChartInstance = null;
     let zoneChartInstance = null;
     let selectedProcessPathFilter = null;
+    
     const PATH_GROUPS = ["SINGLE", "MULTI", "NONSORT", "GIFT SINGLE", "GIFT MULTI"];
     const ZONE_HEADERS = ["A-HRV", "A", "B", "C", "D", "M", "E"];
     const FLOOR_HEADERS = [
@@ -551,7 +595,6 @@
     const COL_BATCH = 11; 
     const COL_CPT = 3;
 
-    // input alanını o anki gerçek yerel saatle güncelleyen yardımcı fonksiyon
     function setCurrentTimeToInput() {
         const now = new Date();
         let offset = now.getTimezoneOffset();
@@ -559,7 +602,6 @@
         document.getElementById('calculationStartTime').value = localNow.toISOString().slice(0, 16);
     }
 
-    // Sayfa ilk yüklendiğinde güncel saati ata
     window.addEventListener('DOMContentLoaded', () => {
         setCurrentTimeToInput();
     });
@@ -615,7 +657,6 @@
 
     document.getElementById('csvFile').addEventListener('change', handleFile);
     
-    // BUTONA HER BASILDIĞINDA: Önce saati şu ana güncelle, sonra veriyi hesapla
     document.getElementById('processBtn').addEventListener('click', () => {
         setCurrentTimeToInput(); 
         processData(rawData);
@@ -633,8 +674,8 @@
     function parseCSV(text) {
         const lines = text.split(/\r?\n/);
         rawData = [];
-        let minDate = null;
-        let maxDate = null;
+        let cptSet = new Set();
+
         for(let i = 1; i < lines.length; i++) {
             let line = lines[i].trim();
             if(!line) continue;
@@ -666,29 +707,59 @@
             if (cleanRow[COL_CPT]) {
                 let timeParsed = Date.parse(cleanRow[COL_CPT].replace(/"/g, ''));
                 if(!isNaN(timeParsed)){
-                    if(!minDate || timeParsed < minDate) minDate = timeParsed;
-                    if(!maxDate || timeParsed > maxDate) maxDate = timeParsed;
+                    cptSet.add(timeParsed);
                  }
             }
         }
 
-        if (minDate && maxDate) {
-            const formatForInput = (timestamp) => {
-                let d = new Date(timestamp);
-                let offset = d.getTimezoneOffset();
-                d = new Date(d.getTime() - (offset * 60 * 1000));
-                return d.toISOString().slice(0, 16);
-            };
-            document.getElementById('filterStartDate').value = formatForInput(minDate);
-            document.getElementById('filterEndDate').value = formatForInput(maxDate);
-        }
+        // Tüm benzersiz CPT'leri al, sırala ve tabloyu oluştur
+        uniqueCPTs = Array.from(cptSet).sort((a, b) => a - b);
+        selectedCPTs.clear();
+        renderCPTTable();
 
-        // DOSYA HER YÜKLENDİĞİNDE DE: Saati o anki canlı bilgisayar saatine eşitle
         setCurrentTimeToInput();
-
         selectedProcessPathFilter = null;
         document.querySelectorAll('.clickable-row').forEach(r => r.classList.remove('selected-filter'));
         processData(rawData);
+    }
+    
+    function renderCPTTable() {
+        const tbody = document.getElementById('cptTableBody');
+        if (uniqueCPTs.length === 0) {
+            tbody.innerHTML = '<tr><td style="text-align: center; color: var(--text-muted);">CPT bulunamadı</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        uniqueCPTs.forEach(cptTime => {
+            let d = new Date(cptTime);
+            // Tarih ve saati düzgün formatta gösterelim
+            let formatted = d.toLocaleString('tr-TR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+            
+            let tr = document.createElement('tr');
+            tr.className = 'cpt-row';
+            tr.dataset.cpt = cptTime;
+            
+            let td = document.createElement('td');
+            td.innerText = formatted;
+            
+            tr.appendChild(td);
+            
+            tr.addEventListener('click', function() {
+                let cTime = parseInt(this.dataset.cpt);
+                if (selectedCPTs.has(cTime)) {
+                    selectedCPTs.delete(cTime);
+                    this.classList.remove('selected-cpt');
+                } else {
+                    selectedCPTs.add(cTime);
+                    this.classList.add('selected-cpt');
+                }
+                // Seçim yapıldıktan sonra tüm sistemi bu verilere göre güncelle
+                processData(rawData);
+            });
+            
+            tbody.appendChild(tr);
+        });
     }
 
     function getGroupKey(ppStr) {
@@ -737,7 +808,7 @@
         let uE = zoneMatrix[pKey]["E"];
         let demand = 0;
         demand += Math.ceil(uM / pphVal);
-        demand += Math.ceil(uE / (pphVal * 2)); // E bölgesi için kapasite iki katına çıkarıldı (pph * 2)
+        demand += Math.ceil(uE / (pphVal * 2));
         demand += Math.ceil(uD / (pphVal / 2));
         let totalFlexibleUnits = uA_Hrv + uA + uB + uC;
         demand += Math.ceil(totalFlexibleUnits / pphVal);
@@ -764,7 +835,7 @@
         }
 
         if (uE > 0) {
-            let pphE = pphVal * 2; // E bölgesi kapasitesi pph*2
+            let pphE = pphVal * 2; 
             let rawE = Math.ceil(uE / pphE);
             let finalE = Math.round(rawE * katsayi) || (katsayi > 0 ? 1 : 0);
             for(let i=0; i<finalE; i++) {
@@ -882,6 +953,7 @@
 
     let zoneMatrix = {}; 
     let floorMatrix = {};
+    
     function processData(data) {
         if(data.length === 0) return;
 
@@ -889,10 +961,6 @@
         const pphM = parseFloat(document.getElementById('pphMulti').value) || 1;
         const pphN = parseFloat(document.getElementById('pphNonsort').value) || 1;
         const mevcutPersonel = parseFloat(document.getElementById('mevcutPersonel').value) || 0;
-        let startInput = document.getElementById('filterStartDate').value;
-        let endInput = document.getElementById('filterEndDate').value;
-        let userStartTime = startInput ? Date.parse(startInput) : 0;
-        let userEndTime = endInput ? Date.parse(endInput) : Infinity;
 
         let ppTotals = { "SINGLE": 0, "MULTI": 0, "NONSORT": 0, "GIFT SINGLE": 0, "GIFT MULTI": 0 };
         let globalZoneTotals = { "A-HRV": 0, "A": 0, "B": 0, "C": 0, "D": 0, "M": 0, "E": 0 };
@@ -920,7 +988,8 @@
 
             let rowCptTime = Date.parse(rawCPT.replace(/"/g, ''));
             if (!isNaN(rowCptTime)) {
-                if (rowCptTime < userStartTime || rowCptTime > userEndTime) {
+                // Eğer CPT seçimi yapıldıysa ve bu satırın CPT'si seçilenler arasında yoksa atla
+                if (selectedCPTs.size > 0 && !selectedCPTs.has(rowCptTime)) {
                     return; 
                 }
                 
@@ -930,6 +999,10 @@
                         cptData[rowCptTime][p] = { total: 0, D: 0, E: 0 };
                     });
                 }
+            } else {
+                 // CPT verisi bozuk veya yoksa (ve çoklu seçim devredeyse) atla 
+                 // (Sadece "hiçbiri seçilmediyse" eklenir)
+                 if (selectedCPTs.size > 0) return; 
             }
 
             let group = getGroupKey(rawPP);
@@ -1022,7 +1095,6 @@
         let singleTemplates = generateAssignmentsTemplate("SINGLE", pphS, katsayiAna);
         let multiTemplates = generateAssignmentsTemplate("MULTI", pphM, katsayiAna);
 
-        // --- GERÇEK ZAMANLI SİMÜLASYON VE KPI (ETA HESAPLAMA) ---
         document.getElementById('kpiPanel').style.display = "grid";
         let totalWorkHours = 0;
 
@@ -1066,9 +1138,6 @@
             sürecektir.
         `;
 
-        // -------------------------------------------------------------
-        // KRONOLOJİK ARDIŞIK KUYRUK BACKLOG SİMÜLASYONU (CANLI SAAT ODAKLI)
-        // -------------------------------------------------------------
         let calcStartInput = document.getElementById('calculationStartTime').value;
         let currentTime = calcStartInput ? Date.parse(calcStartInput) : Date.now(); 
 
@@ -1126,7 +1195,6 @@
             simClock = endJobClock;
         });
 
-        // HTML Arayüz Çıktısı Üretimi
         let backlogBoxContent = `<strong>🚨 ZAMAN ÇİZELGELİ KALAN İŞ (BACKLOG) TABLOSU</strong>`;
         let hesaplamaSaatiStr = new Date(currentTime).toLocaleString('tr-TR', { day:'2-digit', month:'short', hour: '2-digit', minute:'2-digit' });
 
@@ -1170,7 +1238,6 @@
              backlogBoxContent += `</tbody></table></div>`;
         }
         document.getElementById('kpiBacklogBox').innerHTML = backlogBoxContent;
-        // -------------------------------------------------------------
 
         function runSmartAllocationEngine(pKey, templates, kVal, isGift = false) {
             if (!templates || templates.length === 0) {
@@ -1194,7 +1261,7 @@
                     if (person.baseZonesOrdered[0][0] === "D") {
                         currentPersonMaxCapacity = effectivePPH / 2;
                     } else if (person.baseZonesOrdered[0][0] === "E") {
-                        currentPersonMaxCapacity = effectivePPH * 2; // E bölgesi için kapasite pph*2
+                        currentPersonMaxCapacity = effectivePPH * 2; 
                     }
                 }
 
