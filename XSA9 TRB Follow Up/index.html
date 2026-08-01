@@ -149,14 +149,22 @@
         .report-header { border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 25px; }
         .report-header h1 { margin: 0; font-size: 28px; color: #0f172a; font-weight: 700; }
         
+        /* PDF Sayfa Kesme ve Başa Alma Stilleri */
         .entry-instance {
-            margin-bottom: 40px; padding-bottom: 20px;
-            border-bottom: 2px dashed #cbd5e1; 
-            page-break-inside: auto;
+            page-break-before: always;
+            break-before: page;
+            margin-bottom: 0; 
+            padding-bottom: 0;
+            border-bottom: none; 
         }
-        .entry-instance:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        
+        /* İlk saatte sayfa atlamasını iptal et */
+        #dynamic-reports-container .entry-instance:first-child { 
+            page-break-before: auto !important;
+            break-before: auto !important;
+        }
 
-        /* Başlık ve Gruplama CSS'leri güncellendi */
+        /* Başlık CSS'i */
         .time-header {
             font-size: 16px; font-weight: 700; color: var(--primary-dark);
             margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;
@@ -164,7 +172,6 @@
             page-break-inside: avoid;
         }
         
-        /* DÜZELTME 1: html2pdf flex yapısını sayfa bölerken bozabiliyor, block yaptık */
         .report-screenshots { display: block; } 
         
         .screenshot-item {
@@ -178,16 +185,18 @@
             color: var(--primary-dark); border-bottom: 1px solid var(--border-color);
         }
         
-        /* DÜZELTME 2: Başlık ve ilk görseli ASLA ayırma kapsayıcısı */
+        /* Başlık, Saat ve İlk Görsel Kapsayıcısı */
         .keep-together {
             page-break-inside: avoid !important;
+            break-inside: avoid !important;
             margin-bottom: 20px;
             display: block;
         }
 
         .report-item-block {
             margin-bottom: 20px;
-            page-break-inside: avoid !important; /* Görselin yarısı altta yarısı üstte kalmasın */
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
             display: block;
         }
         .report-item-block:last-child { margin-bottom: 0; }
@@ -230,7 +239,6 @@
                 <input type="file" id="pdf-input" accept="application/pdf" style="display:none" onchange="handlePDFUpload(event)">
             </div>
 
-            <!-- Kayıt Zaman Çizelgesi Yöneticisi -->
             <div class="report-manager">
                 <div class="rm-row">
                     <select id="entry-selector" class="rm-select" onchange="switchEntry(this.value)"></select>
@@ -256,7 +264,6 @@
 
         <!-- SAĞ PANEL -->
         <div class="preview-wrapper">
-            <!-- Önizleme ekranı -->
             <div class="a4-paper" id="report-content-wrapper"> 
                 <div id="report-content">
                     <div class="report-header">
@@ -266,7 +273,6 @@
                         Tarih: <span id="current-date"></span>
                     </div>
                     
-                    <!-- Saat bazlı içerikler kronolojik olarak buraya gelecek -->
                     <div id="dynamic-reports-container"></div>
                 </div>
             </div>
@@ -324,7 +330,6 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = 'category-wrapper';
                 
-                // Dropzone
                 const dropZone = document.createElement('div');
                 dropZone.className = 'image-drop-zone';
                 dropZone.id = `dropzone-${cat.id}`;
@@ -335,7 +340,6 @@
                     <br><button type="button" class="btn-remove-img" id="btn-clear-${cat.id}">Kategorideki Tüm Görselleri Sil</button>
                 `;
                 
-                // Her görsele ait içeriğin listeleneceği alan
                 const previewContainer = document.createElement('div');
                 previewContainer.className = 'preview-container';
                 previewContainer.id = `preview-${cat.id}`;
@@ -344,7 +348,6 @@
                 wrapper.appendChild(previewContainer);
                 imgUploadContainer.appendChild(wrapper);
 
-                // Event Listeners
                 const fileInput = dropZone.querySelector('input');
                 const removeBtn = dropZone.querySelector('.btn-remove-img');
 
@@ -454,7 +457,6 @@
                         const itemWrapper = document.createElement('div');
                         itemWrapper.className = 'item-wrapper';
                         
-                        // Görsel Kutusu
                         const thumbWrapper = document.createElement('div');
                         thumbWrapper.className = 'thumbnail-wrapper';
                         const thumbImg = document.createElement('img');
@@ -471,7 +473,6 @@
                         thumbWrapper.appendChild(thumbImg);
                         thumbWrapper.appendChild(btnRemoveSingle);
 
-                        // Açıklama Alanı (Görsele Özel)
                         const descInput = document.createElement('textarea');
                         descInput.className = 'item-desc';
                         descInput.placeholder = 'Bu görsele özel bir açıklama yazın...';
@@ -500,7 +501,6 @@
                 if(entry) {
                     if(!entry.items) entry.items = {}; 
                     if(!entry.items[catId]) entry.items[catId] = [];
-                    // Her görsel eklendiğinde boş açıklamalı bir nesne oluşturulur
                     entry.items[catId].push({ img: e.target.result, desc: '' });
                     loadFormFromState();
                     renderRightPanel();
@@ -528,11 +528,12 @@
                 const timeH3 = document.createElement('h3');
                 timeH3.className = 'time-header';
                 timeH3.innerHTML = `⏱ Rapor Saati: ${entry.time || '--:--'}`;
-                wrapper.appendChild(timeH3);
                 
                 if (hasContent) {
                     const screensDiv = document.createElement('div');
                     screensDiv.className = 'report-screenshots';
+                    
+                    let isFirstCategoryInHour = true; 
                     
                     imageCategories.forEach(cat => {
                         const items = entry.items[cat.id] || [];
@@ -541,10 +542,17 @@
                             const section = document.createElement('div');
                             section.className = 'screenshot-item';
                             
-                            // DÜZELTME 3: Başlık ve ilk resmi aynı kutuda grupla
                             const keepTogetherDiv = document.createElement('div');
                             keepTogetherDiv.className = 'keep-together';
-                            keepTogetherDiv.innerHTML = `<h4>${cat.label}</h4>`;
+                            
+                            if (isFirstCategoryInHour) {
+                                keepTogetherDiv.appendChild(timeH3);
+                                isFirstCategoryInHour = false;
+                            }
+                            
+                            const catHeader = document.createElement('h4');
+                            catHeader.innerText = cat.label;
+                            keepTogetherDiv.appendChild(catHeader);
                             
                             items.forEach((itemObj, index) => {
                                 const itemDiv = document.createElement('div');
@@ -562,11 +570,9 @@
                                 }
                                 
                                 if (index === 0) {
-                                    // 1. Resmi başlığın yanına ekle, böylece başlıkla beraber hareket etsin
                                     keepTogetherDiv.appendChild(itemDiv);
                                     section.appendChild(keepTogetherDiv);
                                 } else {
-                                    // Kalan resimleri serbest bırak
                                     section.appendChild(itemDiv);
                                 }
                             });
@@ -575,6 +581,8 @@
                         }
                     });
                     wrapper.appendChild(screensDiv);
+                } else {
+                    wrapper.appendChild(timeH3);
                 }
                 
                 container.appendChild(wrapper);
@@ -591,13 +599,17 @@
             
             const rootData = { version: "v4", entries: appState.entries };
 
+            // html2pdf Konfigürasyonu - margin ve pagebreak ayarları güncellendi
             const opt = {
-                margin:       [12, 10, 15, 10], // Her sayfanın kenar boşlukları (mm)
+                margin:       [15, 15, 15, 15],
                 filename:     `TRB_Follow_Up_${dateStr}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['css', 'legacy'] }
+                pagebreak:    { 
+                    mode: ['css', 'legacy'], 
+                    avoid: ['.keep-together', '.report-item-block'] 
+                }
             };
 
             html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
@@ -657,12 +669,10 @@
                         
                         appState = { activeEntryId: 1, nextId: 2, entries: [] };
 
-                        // Yeni versiyon (Görsele Özel Açıklamalı)
                         if (parsedData.version === "v4" && parsedData.entries) {
                             appState.entries = parsedData.entries;
                             appState.nextId = Math.max(...appState.entries.map(en => en.id)) + 1;
                         }
-                        // Önceki saat bazlı versiyon (V3 - Kategoride tek açıklama var)
                         else if (parsedData.entries) { 
                             appState.entries = parsedData.entries.map(en => {
                                 const newEntry = createNewEntry(en.id);
@@ -671,7 +681,6 @@
                                     Object.keys(en.images).forEach(catId => {
                                         const imgs = en.images[catId] || [];
                                         const catDesc = (en.descriptions && en.descriptions[catId]) ? en.descriptions[catId] : '';
-                                        // Eski tek açıklamayı ilk görsele ver
                                         imgs.forEach((b64, idx) => {
                                             newEntry.items[catId].push({ img: b64, desc: idx === 0 ? catDesc : '' });
                                         });
@@ -681,7 +690,6 @@
                             });
                             appState.nextId = Math.max(...appState.entries.map(en => en.id)) + 1;
                         } 
-                        // En eski Daily Report çoklu format (V1)
                         else if (parsedData.reports) {
                             parsedData.reports.forEach((rep, idx) => {
                                 let entry = createNewEntry(idx + 1);
@@ -696,7 +704,6 @@
                             });
                             appState.nextId = appState.entries.length + 1;
                         } 
-                        // Eski tek saatli Follow Up format (V2)
                         else { 
                             let entry = createNewEntry(1);
                             entry.time = parsedData.time || new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
