@@ -462,15 +462,51 @@
         function processFile(file, catId) {
             if (!file.type.startsWith('image/')) { alert("Sadece görsel eklenebilir."); return; }
             const reader = new FileReader();
+            
             reader.onload = (e) => {
-                const entry = appState.entries.find(en => en.id === appState.activeEntryId);
-                if(entry) {
-                    if(!entry.items) entry.items = {}; 
-                    if(!entry.items[catId]) entry.items[catId] = [];
-                    entry.items[catId].push({ img: e.target.result, desc: '' });
-                    loadFormFromState();
-                    renderRightPanel();
-                }
+                // Görseli doğrudan kaydetmek yerine bir Image objesi oluşturuyoruz
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Maksimum genişlik ve yüksekliği belirliyoruz
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    let width = img.width;
+                    let height = img.height;
+        
+                    // En-boy oranını koruyarak küçültme işlemi
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+        
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+        
+                    // Görseli JPEG formatında ve %70 kalitede sıkıştırarak DataURL'e çeviriyoruz
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        
+                    const entry = appState.entries.find(en => en.id === appState.activeEntryId);
+                    if(entry) {
+                        if(!entry.items) entry.items = {}; 
+                        if(!entry.items[catId]) entry.items[catId] = [];
+                        // Ham e.target.result yerine sıkıştırılmış görseli kaydediyoruz
+                        entry.items[catId].push({ img: compressedBase64, desc: '' });
+                        loadFormFromState();
+                        renderRightPanel();
+                    }
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -563,8 +599,8 @@
             const opt = {
                 margin:       [15, 12, 15, 12],
                 filename:     `TRB_Follow_Up_${dateStr}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                image:        { type: 'jpeg', quality: 0.70 }, // 0.98'den 0.70'e düşürüldü
+                html2canvas:  { scale: 1, useCORS: true, logging: false }, // scale 2'den 1'e düşürüldü
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak:    { 
                     mode: 'css',
