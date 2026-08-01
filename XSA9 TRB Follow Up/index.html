@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRB Follow Up</title>
+    <!-- PDF'e dönüştürmek için html2pdf kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg-color: #f1f5f9;
+            --sidebar-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            display: flex; height: 100vh; overflow: hidden;
+        }
+        .app-container { display: flex; width: 100%; height: 100vh; }
+        
+        /* Sol Menü */
+        .sidebar {
+            width: 480px; background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
+            height: 100%; box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10;
+        }
+        .sidebar-header {
+            padding: 25px 25px 15px 25px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #f8fafc;
+        }
+        .sidebar-header h2 { margin: 0; font-size: 1.25rem; color: #0f172a; }
+        .sidebar-header p { margin: 5px 0 15px 0; font-size: 0.85rem; color: var(--text-muted); }
+        
+        .btn-upload-pdf {
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            width: 100%; padding: 10px; 
+            background-color: #eff6ff; color: var(--primary-dark);
+            border: 1px dashed var(--primary); border-radius: 6px;
+            font-weight: 600; font-size: 0.9rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-upload-pdf:hover { background-color: #dbeafe; border-style: solid; }
+
+        /* Kayıt Yönetim Paneli */
+        .report-manager {
+            padding: 15px 25px; background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .rm-row { display: flex; gap: 10px; align-items: center; }
+        .rm-select { 
+            flex: 1; padding: 8px; border-radius: 6px; 
+            border: 1px solid var(--border-color); font-family: inherit; font-size: 0.9rem;
+        }
+        .rm-btn { 
+            padding: 8px 12px; border-radius: 6px; border: none; 
+            font-weight: 600; cursor: pointer; color: white; font-family: inherit; font-size: 0.85rem;
+        }
+        .rm-btn-add { background: var(--primary); }
+        .rm-btn-add:hover { background: var(--primary-dark); }
+        .rm-btn-del { background: #ef4444; }
+        .rm-btn-del:hover { background: #dc2626; }
+        .rm-time { padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); font-family: inherit; width: 100px;}
+
+        .form-container { flex: 1; overflow-y: auto; padding: 25px; }
+
+        /* İmaj Yükleme Alanları */
+        .section-divider {
+            margin: 0 0 15px 0; font-weight: 700; font-size: 1rem;
+            border-bottom: 2px solid var(--border-color); padding-bottom: 10px; color: #0f172a;
+        }
+        .category-wrapper { margin-bottom: 25px; }
+        .image-drop-zone {
+            border: 2px dashed #cbd5e1; border-radius: 8px; padding: 15px;
+            text-align: center; margin-bottom: 8px; cursor: pointer;
+            background-color: #f8fafc; transition: all 0.2s; outline: none; position: relative;
+        }
+        .image-drop-zone:hover, .image-drop-zone:focus { border-color: var(--primary); background-color: #eff6ff; }
+        .image-drop-zone.has-image { border-color: #22c55e; border-style: solid; background-color: #f0fdf4; }
+        .image-drop-zone .zone-text { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); pointer-events: none; line-height: 1.4; }
+        .image-drop-zone.has-image .zone-text { color: #166534; }
+        
+        .btn-remove-img {
+            display: none; margin-top: 8px; padding: 6px 12px;
+            font-size: 0.75rem; font-weight: 600; color: #ef4444;
+            background: #fee2e2; border: none; border-radius: 4px; cursor: pointer;
+        }
+        .image-drop-zone.has-image .btn-remove-img { display: inline-block; }
+        .btn-remove-img:hover { background: #fca5a5; }
+
+        /* Her Görsele Özel İçerik Stili */
+        .preview-container { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+        .item-wrapper {
+            display: flex; gap: 12px; align-items: flex-start; background: #fff;
+            padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .thumbnail-wrapper {
+            position: relative; width: 90px; height: 90px; border-radius: 6px; 
+            border: 1px solid #e2e8f0; overflow: hidden; background: #f8fafc; flex-shrink: 0;
+        }
+        .thumbnail-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .btn-remove-single {
+            position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; 
+            background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%;
+            font-size: 12px; font-weight: bold; cursor: pointer; display: flex; 
+            align-items: center; justify-content: center; padding: 0; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: background 0.2s;
+        }
+        .btn-remove-single:hover { background: #dc2626; }
+        
+        .item-desc {
+            flex-grow: 1; padding: 8px 10px; border: 1px solid var(--border-color);
+            border-radius: 6px; font-family: inherit; font-size: 0.85rem;
+            box-sizing: border-box; resize: vertical; min-height: 90px;
+            background-color: #f8fafc; transition: border-color 0.2s;
+        }
+        .item-desc:focus { outline: none; border-color: var(--primary); background-color: #fff;}
+
+        .btn {
+            display: flex; justify-content: center; align-items: center;
+            width: 100%; padding: 14px; background-color: var(--primary);
+            color: white; border: none; border-radius: 8px;
+            font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; margin-top: 20px;
+        }
+        .btn:hover { background-color: var(--primary-dark); }
+        
+        /* Sağ Önizleme (A4) */
+        .preview-wrapper {
+            flex: 1; padding: 40px; overflow-y: auto; background-color: #cbd5e1;
+            display: flex; justify-content: center; align-items: flex-start;
+        }
+        
+        .a4-paper {
+            background: white; width: 210mm; min-height: 297mm; padding: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); box-sizing: border-box; position: relative;
+        }
+        #report-content { font-family: 'Inter', sans-serif; color: #1e293b; }
+        .report-header { border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 25px; }
+        .report-header h1 { margin: 0; font-size: 28px; color: #0f172a; font-weight: 700; }
+        
+        .entry-instance {
+            margin-bottom: 40px; padding-bottom: 20px;
+            border-bottom: 2px dashed #cbd5e1; 
+            page-break-inside: auto;
+        }
+        .entry-instance:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+        /* Başlık ve Gruplama CSS'leri güncellendi */
+        .time-header {
+            font-size: 16px; font-weight: 700; color: var(--primary-dark);
+            margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;
+            background: #eff6ff; padding: 10px 14px; border-radius: 6px; border-left: 4px solid var(--primary);
+            page-break-inside: avoid;
+        }
+        
+        /* DÜZELTME 1: html2pdf flex yapısını sayfa bölerken bozabiliyor, block yaptık */
+        .report-screenshots { display: block; } 
+        
+        .screenshot-item {
+            display: block;
+            margin-bottom: 25px;
+            page-break-inside: auto; 
+        }
+
+        .screenshot-item h4 {
+            margin: 0 0 15px 0; padding-bottom: 5px; font-size: 16px;
+            color: var(--primary-dark); border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* DÜZELTME 2: Başlık ve ilk görseli ASLA ayırma kapsayıcısı */
+        .keep-together {
+            page-break-inside: avoid !important;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .report-item-block {
+            margin-bottom: 20px;
+            page-break-inside: avoid !important; /* Görselin yarısı altta yarısı üstte kalmasın */
+            display: block;
+        }
+        .report-item-block:last-child { margin-bottom: 0; }
+        .report-item-block img {
+            max-width: 100%; height: auto; border: 1px solid var(--border-color);
+            border-radius: 4px; display: block; margin: 0 auto; 
+        }
+        .screenshot-desc {
+            font-size: 14px; color: #334155; margin-top: 10px;
+            white-space: pre-wrap; line-height: 1.5;
+            background: #f8fafc; padding: 12px; border-left: 3px solid var(--primary); 
+            border-radius: 4px; 
+            page-break-inside: avoid;
+        }
+
+        .report-footer { position: absolute; top: 20px; right: 20px; font-weight: 600; color: #64748b;}
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        #loader { display: none; text-align: center; margin-top: 10px; font-size: 0.9rem; font-weight: 600; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- SOL PANEL -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>TRB Follow Up</h2>
+                <p>Gün içindeki gelişmeleri saat bazlı kaydedin.</p>
+                <button type="button" class="btn-upload-pdf" onclick="document.getElementById('pdf-input').click()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Önceki Bir PDF'i Yükle ve Devam Et
+                </button>
+                <input type="file" id="pdf-input" accept="application/pdf" style="display:none" onchange="handlePDFUpload(event)">
+            </div>
+
+            <!-- Kayıt Zaman Çizelgesi Yöneticisi -->
+            <div class="report-manager">
+                <div class="rm-row">
+                    <select id="entry-selector" class="rm-select" onchange="switchEntry(this.value)"></select>
+                    <button type="button" class="rm-btn rm-btn-add" onclick="addEntry()">+ Yeni Saat Ekle</button>
+                    <button type="button" class="rm-btn rm-btn-del" onclick="deleteEntry()">Sil</button>
+                </div>
+                <div class="rm-row">
+                    <label style="font-size: 0.85rem; font-weight: 600;">Seçili Kaydın Saati:</label>
+                    <input type="time" id="entry-time" class="rm-time" onchange="updateTime(this.value)">
+                </div>
+            </div>
+
+            <div class="form-container">
+                <form id="report-form" onsubmit="event.preventDefault();">
+                    <div class="section-divider">Kategori Görselleri ve Açıklamaları</div>
+                    <div id="image-upload-container"></div>
+
+                    <button type="button" class="btn" onclick="generatePDF()">Tüm Kayıtları PDF İndir</button>
+                    <div id="loader">PDF Hazırlanıyor, lütfen bekleyin...</div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SAĞ PANEL -->
+        <div class="preview-wrapper">
+            <!-- Önizleme ekranı -->
+            <div class="a4-paper" id="report-content-wrapper"> 
+                <div id="report-content">
+                    <div class="report-header">
+                        <h1>TRB Follow Up</h1>
+                    </div>
+                    <div class="report-footer">
+                        Tarih: <span id="current-date"></span>
+                    </div>
+                    
+                    <!-- Saat bazlı içerikler kronolojik olarak buraya gelecek -->
+                    <div id="dynamic-reports-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. VERİ YAPISI ---
+        const imageCategories = [
+            { id: 'rodeo', label: '1. Rodeo - Work Pool' },
+            { id: 'cora', label: '2. Cora / Newton' },
+            { id: 'ledger', label: '3. Ledger - Daily Ship Rates' },
+            { id: 'collate', label: '4. Collate' },
+            { id: 'pick', label: 'A. Pick Workforce' },
+            { id: 'lagrange', label: 'B. Lagrange' },
+            { id: 'batch', label: 'C. Batch Limit & Pick Rate' },
+            { id: 'others', label: 'Others if needed' }
+        ];
+
+        // --- 2. UYGULAMA DURUMU (STATE) ---
+        let appState = {
+            activeEntryId: 1,
+            nextId: 2,
+            entries: []
+        };
+
+        function createNewEntry(id) {
+            const entry = {
+                id: id,
+                time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+                items: {} 
+            };
+            imageCategories.forEach(cat => {
+                entry.items[cat.id] = [];
+            });
+            return entry;
+        }
+
+        // --- 3. BAŞLANGIÇ VE DOM KURULUMU ---
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('tr-TR');
+            
+            buildFormDOM();
+            
+            appState.entries.push(createNewEntry(1));
+            updateEntrySelector();
+            loadFormFromState();
+            renderRightPanel();
+        });
+
+        function buildFormDOM() {
+            const imgUploadContainer = document.getElementById('image-upload-container');
+            
+            imageCategories.forEach(cat => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'category-wrapper';
+                
+                // Dropzone
+                const dropZone = document.createElement('div');
+                dropZone.className = 'image-drop-zone';
+                dropZone.id = `dropzone-${cat.id}`;
+                dropZone.tabIndex = 0; 
+                dropZone.innerHTML = `
+                    <span class="zone-text" id="zonetext-${cat.id}">${cat.label}<br>(Tıkla, Çoklu Seç veya Yapıştır)</span>
+                    <input type="file" accept="image/*" multiple hidden>
+                    <br><button type="button" class="btn-remove-img" id="btn-clear-${cat.id}">Kategorideki Tüm Görselleri Sil</button>
+                `;
+                
+                // Her görsele ait içeriğin listeleneceği alan
+                const previewContainer = document.createElement('div');
+                previewContainer.className = 'preview-container';
+                previewContainer.id = `preview-${cat.id}`;
+                
+                wrapper.appendChild(dropZone);
+                wrapper.appendChild(previewContainer);
+                imgUploadContainer.appendChild(wrapper);
+
+                // Event Listeners
+                const fileInput = dropZone.querySelector('input');
+                const removeBtn = dropZone.querySelector('.btn-remove-img');
+
+                dropZone.addEventListener('click', (e) => { if (e.target !== removeBtn) fileInput.click(); });
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                        Array.from(e.target.files).forEach(file => processFile(file, cat.id));
+                        e.target.value = ''; 
+                    }
+                });
+
+                dropZone.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                    for (let index in items) {
+                        if (items[index].kind === 'file') {
+                            processFile(items[index].getAsFile(), cat.id);
+                        }
+                    }
+                });
+
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const entry = appState.entries.find(en => en.id === appState.activeEntryId);
+                    if(entry) {
+                        entry.items[cat.id] = [];
+                        loadFormFromState();
+                        renderRightPanel();
+                    }
+                });
+            });
+        }
+
+        // --- 4. ZAMAN ÇİZELGESİ (ENTRY) YÖNETİMİ ---
+        function updateEntrySelector() {
+            const selector = document.getElementById('entry-selector');
+            selector.innerHTML = '';
+            
+            const sortedEntries = [...appState.entries].sort((a, b) => a.time.localeCompare(b.time));
+            
+            sortedEntries.forEach((entry) => {
+                const opt = document.createElement('option');
+                opt.value = entry.id;
+                opt.text = `Kayıt Saati: ${entry.time}`;
+                if (entry.id === appState.activeEntryId) opt.selected = true;
+                selector.appendChild(opt);
+            });
+        }
+
+        function switchEntry(id) {
+            appState.activeEntryId = parseInt(id);
+            loadFormFromState();
+        }
+
+        function addEntry() {
+            const newId = appState.nextId++;
+            appState.entries.push(createNewEntry(newId));
+            appState.activeEntryId = newId;
+            updateEntrySelector();
+            loadFormFromState();
+            renderRightPanel();
+        }
+
+        function deleteEntry() {
+            if (appState.entries.length === 1) {
+                alert("Son kaydı silemezsiniz. Lütfen içeriğini temizleyin.");
+                return;
+            }
+            if(confirm("Seçili saati ve içindeki verileri silmek istediğinize emin misiniz?")) {
+                appState.entries = appState.entries.filter(e => e.id !== appState.activeEntryId);
+                appState.activeEntryId = appState.entries[0].id;
+                updateEntrySelector();
+                loadFormFromState();
+                renderRightPanel();
+            }
+        }
+
+        function updateTime(newTime) {
+            const entry = appState.entries.find(e => e.id === appState.activeEntryId);
+            if(entry) {
+                entry.time = newTime;
+                updateEntrySelector(); 
+                renderRightPanel();
+            }
+        }
+
+        // --- 5. ARAYÜZ GÜNCELLEME (STATE -> UI) ---
+        function loadFormFromState() {
+            const entry = appState.entries.find(e => e.id === appState.activeEntryId);
+            if(!entry) return;
+
+            document.getElementById('entry-time').value = entry.time || '';
+
+            imageCategories.forEach(cat => {
+                const previewContainer = document.getElementById(`preview-${cat.id}`);
+                const dropZone = document.getElementById(`dropzone-${cat.id}`);
+                const zoneText = document.getElementById(`zonetext-${cat.id}`);
+                
+                const items = entry.items[cat.id] || [];
+                previewContainer.innerHTML = '';
+                
+                if (items.length > 0) {
+                    dropZone.classList.add('has-image');
+                    zoneText.innerHTML = `<strong>${items.length} görsel eklendi.</strong><br>Daha fazla eklemek için tıkla/yapıştır.`;
+                    
+                    items.forEach((itemObj, index) => {
+                        const itemWrapper = document.createElement('div');
+                        itemWrapper.className = 'item-wrapper';
+                        
+                        // Görsel Kutusu
+                        const thumbWrapper = document.createElement('div');
+                        thumbWrapper.className = 'thumbnail-wrapper';
+                        const thumbImg = document.createElement('img');
+                        thumbImg.src = itemObj.img;
+                        const btnRemoveSingle = document.createElement('button');
+                        btnRemoveSingle.className = 'btn-remove-single';
+                        btnRemoveSingle.innerHTML = '✕';
+                        btnRemoveSingle.addEventListener('click', (ev) => {
+                            ev.stopPropagation();
+                            entry.items[cat.id].splice(index, 1);
+                            loadFormFromState(); 
+                            renderRightPanel();  
+                        });
+                        thumbWrapper.appendChild(thumbImg);
+                        thumbWrapper.appendChild(btnRemoveSingle);
+
+                        // Açıklama Alanı (Görsele Özel)
+                        const descInput = document.createElement('textarea');
+                        descInput.className = 'item-desc';
+                        descInput.placeholder = 'Bu görsele özel bir açıklama yazın...';
+                        descInput.value = itemObj.desc || '';
+                        descInput.addEventListener('input', (e) => {
+                            itemObj.desc = e.target.value;
+                            renderRightPanel();
+                        });
+
+                        itemWrapper.appendChild(thumbWrapper);
+                        itemWrapper.appendChild(descInput);
+                        previewContainer.appendChild(itemWrapper);
+                    });
+                } else {
+                    dropZone.classList.remove('has-image');
+                    zoneText.innerHTML = `${cat.label}<br>(Tıkla, Çoklu Seç veya Yapıştır)`;
+                }
+            });
+        }
+
+        function processFile(file, catId) {
+            if (!file.type.startsWith('image/')) { alert("Sadece görsel eklenebilir."); return; }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const entry = appState.entries.find(en => en.id === appState.activeEntryId);
+                if(entry) {
+                    if(!entry.items) entry.items = {}; 
+                    if(!entry.items[catId]) entry.items[catId] = [];
+                    // Her görsel eklendiğinde boş açıklamalı bir nesne oluşturulur
+                    entry.items[catId].push({ img: e.target.result, desc: '' });
+                    loadFormFromState();
+                    renderRightPanel();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- 6. SAĞ PANEL DİNAMİK OLUŞTURMA ---
+        function renderRightPanel() {
+            const container = document.getElementById('dynamic-reports-container');
+            container.innerHTML = ''; 
+            
+            const sortedEntries = [...appState.entries].sort((a, b) => a.time.localeCompare(b.time));
+            
+            sortedEntries.forEach((entry) => {
+                let hasContent = false;
+                imageCategories.forEach(cat => {
+                    if (entry.items[cat.id] && entry.items[cat.id].length > 0) hasContent = true;
+                });
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'entry-instance';
+                
+                const timeH3 = document.createElement('h3');
+                timeH3.className = 'time-header';
+                timeH3.innerHTML = `⏱ Rapor Saati: ${entry.time || '--:--'}`;
+                wrapper.appendChild(timeH3);
+                
+                if (hasContent) {
+                    const screensDiv = document.createElement('div');
+                    screensDiv.className = 'report-screenshots';
+                    
+                    imageCategories.forEach(cat => {
+                        const items = entry.items[cat.id] || [];
+                        
+                        if (items.length > 0) {
+                            const section = document.createElement('div');
+                            section.className = 'screenshot-item';
+                            
+                            // DÜZELTME 3: Başlık ve ilk resmi aynı kutuda grupla
+                            const keepTogetherDiv = document.createElement('div');
+                            keepTogetherDiv.className = 'keep-together';
+                            keepTogetherDiv.innerHTML = `<h4>${cat.label}</h4>`;
+                            
+                            items.forEach((itemObj, index) => {
+                                const itemDiv = document.createElement('div');
+                                itemDiv.className = 'report-item-block';
+                                
+                                const img = document.createElement('img');
+                                img.src = itemObj.img;
+                                itemDiv.appendChild(img);
+                                
+                                if (itemObj.desc && itemObj.desc.trim() !== '') {
+                                    const descP = document.createElement('div');
+                                    descP.className = 'screenshot-desc';
+                                    descP.innerText = itemObj.desc;
+                                    itemDiv.appendChild(descP);
+                                }
+                                
+                                if (index === 0) {
+                                    // 1. Resmi başlığın yanına ekle, böylece başlıkla beraber hareket etsin
+                                    keepTogetherDiv.appendChild(itemDiv);
+                                    section.appendChild(keepTogetherDiv);
+                                } else {
+                                    // Kalan resimleri serbest bırak
+                                    section.appendChild(itemDiv);
+                                }
+                            });
+                            
+                            screensDiv.appendChild(section);
+                        }
+                    });
+                    wrapper.appendChild(screensDiv);
+                }
+                
+                container.appendChild(wrapper);
+            });
+        }
+
+        // --- 7. PDF KAYDETME VE GERİ YÜKLEME ---
+        function generatePDF() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'block'; 
+            
+            const element = document.getElementById('report-content');
+            const dateStr = new Date().toISOString().slice(0, 10);
+            
+            const rootData = { version: "v4", entries: appState.entries };
+
+            const opt = {
+                margin:       [12, 10, 15, 10], // Her sayfanın kenar boşlukları (mm)
+                filename:     `TRB_Follow_Up_${dateStr}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
+            };
+
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                const pdfBlob = pdf.output('blob');
+                const metadataStr = "\n###TRB_FOLLOWUP_DATA_START###\n" + JSON.stringify(rootData) + "\n###TRB_FOLLOWUP_DATA_END###\n";
+                const metaBlob = new Blob([metadataStr], { type: 'text/plain' });
+                const finalBlob = new Blob([pdfBlob, metaBlob], { type: 'application/pdf' });
+                
+                const url = URL.createObjectURL(finalBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = opt.filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                loader.style.display = 'none';
+            }).catch(err => {
+                console.error(err);
+                alert("PDF oluşturulurken bir hata meydana geldi.");
+                loader.style.display = 'none';
+            });
+        }
+
+        function handlePDFUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const arrayBuffer = e.target.result;
+                const view = new Uint8Array(arrayBuffer);
+                const decoder = new TextDecoder("utf-8");
+                const text = decoder.decode(view);
+
+                const startMarkerNew = "###TRB_FOLLOWUP_DATA_START###";
+                const endMarkerNew = "###TRB_FOLLOWUP_DATA_END###";
+                const startMarkerOld = "###TRB_BRIDGE_DATA_START###";
+                const endMarkerOld = "###TRB_BRIDGE_DATA_END###";
+                
+                let startIndex = text.lastIndexOf(startMarkerNew);
+                let endIndex = text.lastIndexOf(endMarkerNew);
+                let isOldFormat = false;
+
+                if (startIndex === -1 || endIndex === -1) {
+                    startIndex = text.lastIndexOf(startMarkerOld);
+                    endIndex = text.lastIndexOf(endMarkerOld);
+                    isOldFormat = true;
+                }
+                
+                if (startIndex !== -1 && endIndex !== -1) {
+                    const markerLength = isOldFormat ? startMarkerOld.length : startMarkerNew.length;
+                    const jsonStr = text.substring(startIndex + markerLength, endIndex).trim();
+                    try {
+                        const parsedData = JSON.parse(jsonStr);
+                        
+                        appState = { activeEntryId: 1, nextId: 2, entries: [] };
+
+                        // Yeni versiyon (Görsele Özel Açıklamalı)
+                        if (parsedData.version === "v4" && parsedData.entries) {
+                            appState.entries = parsedData.entries;
+                            appState.nextId = Math.max(...appState.entries.map(en => en.id)) + 1;
+                        }
+                        // Önceki saat bazlı versiyon (V3 - Kategoride tek açıklama var)
+                        else if (parsedData.entries) { 
+                            appState.entries = parsedData.entries.map(en => {
+                                const newEntry = createNewEntry(en.id);
+                                newEntry.time = en.time;
+                                if(en.images) {
+                                    Object.keys(en.images).forEach(catId => {
+                                        const imgs = en.images[catId] || [];
+                                        const catDesc = (en.descriptions && en.descriptions[catId]) ? en.descriptions[catId] : '';
+                                        // Eski tek açıklamayı ilk görsele ver
+                                        imgs.forEach((b64, idx) => {
+                                            newEntry.items[catId].push({ img: b64, desc: idx === 0 ? catDesc : '' });
+                                        });
+                                    });
+                                }
+                                return newEntry;
+                            });
+                            appState.nextId = Math.max(...appState.entries.map(en => en.id)) + 1;
+                        } 
+                        // En eski Daily Report çoklu format (V1)
+                        else if (parsedData.reports) {
+                            parsedData.reports.forEach((rep, idx) => {
+                                let entry = createNewEntry(idx + 1);
+                                entry.time = rep.time || "00:00";
+                                if (rep.images) {
+                                    Object.keys(rep.images).forEach(catId => {
+                                        const imgs = rep.images[catId] || [];
+                                        imgs.forEach(b64 => entry.items[catId].push({ img: b64, desc: '' }));
+                                    });
+                                }
+                                appState.entries.push(entry);
+                            });
+                            appState.nextId = appState.entries.length + 1;
+                        } 
+                        // Eski tek saatli Follow Up format (V2)
+                        else { 
+                            let entry = createNewEntry(1);
+                            entry.time = parsedData.time || new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                            if (parsedData.images) {
+                                Object.keys(parsedData.images).forEach(catId => {
+                                    const imgs = parsedData.images[catId] || [];
+                                    const catDesc = (parsedData.descriptions && parsedData.descriptions[catId]) ? parsedData.descriptions[catId] : '';
+                                    imgs.forEach((b64, idx) => {
+                                        entry.items[catId].push({ img: b64, desc: idx === 0 ? catDesc : '' });
+                                    });
+                                });
+                            }
+                            appState.entries.push(entry);
+                        }
+
+                        appState.activeEntryId = appState.entries[0].id;
+                        
+                        updateEntrySelector();
+                        loadFormFromState();
+                        renderRightPanel();
+                        alert("Veriler başarıyla yüklendi!");
+                        
+                    } catch(err) {
+                        console.error("PDF Yükleme Hatası:", err);
+                        alert("PDF içindeki veri formatı bozuk veya okunamadı.");
+                    }
+                } else {
+                    alert("Bu PDF düzenlenebilir bir veri içermiyor.");
+                }
+                event.target.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>
