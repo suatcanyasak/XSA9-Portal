@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRB Follow Up</title>
-    <!-- PDF'e dönüştürmek için html2pdf kütüphanesi -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -98,7 +97,6 @@
         .image-drop-zone.has-image .btn-remove-img { display: inline-block; }
         .btn-remove-img:hover { background: #fca5a5; }
 
-        /* Her Görsele Özel İçerik Stili */
         .preview-container { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
         .item-wrapper {
             display: flex; gap: 12px; align-items: flex-start; background: #fff;
@@ -149,67 +147,49 @@
         .report-header { border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 25px; }
         .report-header h1 { margin: 0; font-size: 28px; color: #0f172a; font-weight: 700; }
         
-        /* PDF Sayfa Kesme ve Başa Alma Stilleri */
-        .entry-instance {
-            page-break-before: always;
-            break-before: page;
-            margin-bottom: 0; 
-            padding-bottom: 0;
-            border-bottom: none; 
-        }
-        
-        /* İlk saatte sayfa atlamasını iptal et */
-        #dynamic-reports-container .entry-instance:first-child { 
-            page-break-before: auto !important;
-            break-before: auto !important;
-        }
+        .entry-instance { margin-bottom: 20px; }
 
-        /* Başlık CSS'i */
         .time-header {
             font-size: 16px; font-weight: 700; color: var(--primary-dark);
             margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;
             background: #eff6ff; padding: 10px 14px; border-radius: 6px; border-left: 4px solid var(--primary);
-            page-break-inside: avoid;
         }
         
         .report-screenshots { display: block; } 
         
+        /* Kategori başlığı + ilk görsel + açıklama bütünlüğünü korumak için */
         .screenshot-item {
             display: block;
             margin-bottom: 25px;
-            page-break-inside: auto; 
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .screenshot-item h4 {
             margin: 0 0 15px 0; padding-bottom: 5px; font-size: 16px;
             color: var(--primary-dark); border-bottom: 1px solid var(--border-color);
         }
-        
-        /* Başlık, Saat ve İlk Görsel Kapsayıcısı */
-        .keep-together {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-            margin-bottom: 20px;
-            display: block;
-        }
 
         .report-item-block {
             margin-bottom: 20px;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
             display: block;
         }
         .report-item-block:last-child { margin-bottom: 0; }
+        
         .report-item-block img {
-            max-width: 100%; height: auto; border: 1px solid var(--border-color);
+            max-width: 100%; 
+            max-height: 120mm; 
+            height: auto; 
+            object-fit: contain;
+            border: 1px solid var(--border-color);
             border-radius: 4px; display: block; margin: 0 auto; 
         }
+        
         .screenshot-desc {
             font-size: 14px; color: #334155; margin-top: 10px;
             white-space: pre-wrap; line-height: 1.5;
             background: #f8fafc; padding: 12px; border-left: 3px solid var(--primary); 
             border-radius: 4px; 
-            page-break-inside: avoid;
         }
 
         .report-footer { position: absolute; top: 20px; right: 20px; font-weight: 600; color: #64748b;}
@@ -222,7 +202,6 @@
 </head>
 <body>
     <div class="app-container">
-        
         <!-- SOL PANEL -->
         <div class="sidebar">
             <div class="sidebar-header">
@@ -280,7 +259,6 @@
     </div>
 
     <script>
-        // --- 1. VERİ YAPISI ---
         const imageCategories = [
             { id: 'rodeo', label: '1. Rodeo - Work Pool' },
             { id: 'cora', label: '2. Cora / Newton' },
@@ -292,12 +270,7 @@
             { id: 'others', label: 'Others if needed' }
         ];
 
-        // --- 2. UYGULAMA DURUMU (STATE) ---
-        let appState = {
-            activeEntryId: 1,
-            nextId: 2,
-            entries: []
-        };
+        let appState = { activeEntryId: 1, nextId: 2, entries: [] };
 
         function createNewEntry(id) {
             const entry = {
@@ -305,18 +278,13 @@
                 time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
                 items: {} 
             };
-            imageCategories.forEach(cat => {
-                entry.items[cat.id] = [];
-            });
+            imageCategories.forEach(cat => entry.items[cat.id] = []);
             return entry;
         }
 
-        // --- 3. BAŞLANGIÇ VE DOM KURULUMU ---
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('current-date').innerText = new Date().toLocaleDateString('tr-TR');
-            
             buildFormDOM();
-            
             appState.entries.push(createNewEntry(1));
             updateEntrySelector();
             loadFormFromState();
@@ -381,7 +349,6 @@
             });
         }
 
-        // --- 4. ZAMAN ÇİZELGESİ (ENTRY) YÖNETİMİ ---
         function updateEntrySelector() {
             const selector = document.getElementById('entry-selector');
             selector.innerHTML = '';
@@ -434,7 +401,6 @@
             }
         }
 
-        // --- 5. ARAYÜZ GÜNCELLEME (STATE -> UI) ---
         function loadFormFromState() {
             const entry = appState.entries.find(e => e.id === appState.activeEntryId);
             if(!entry) return;
@@ -509,18 +475,23 @@
             reader.readAsDataURL(file);
         }
 
-        // --- 6. SAĞ PANEL DİNAMİK OLUŞTURMA ---
         function renderRightPanel() {
             const container = document.getElementById('dynamic-reports-container');
             container.innerHTML = ''; 
             
             const sortedEntries = [...appState.entries].sort((a, b) => a.time.localeCompare(b.time));
             
-            sortedEntries.forEach((entry) => {
+            sortedEntries.forEach((entry, index) => {
                 let hasContent = false;
                 imageCategories.forEach(cat => {
                     if (entry.items[cat.id] && entry.items[cat.id].length > 0) hasContent = true;
                 });
+
+                if (index > 0) {
+                    const pageBreak = document.createElement('div');
+                    pageBreak.className = 'html2pdf__page-break';
+                    container.appendChild(pageBreak);
+                }
 
                 const wrapper = document.createElement('div');
                 wrapper.className = 'entry-instance';
@@ -542,19 +513,16 @@
                             const section = document.createElement('div');
                             section.className = 'screenshot-item';
                             
-                            const keepTogetherDiv = document.createElement('div');
-                            keepTogetherDiv.className = 'keep-together';
-                            
                             if (isFirstCategoryInHour) {
-                                keepTogetherDiv.appendChild(timeH3);
+                                section.appendChild(timeH3);
                                 isFirstCategoryInHour = false;
                             }
                             
                             const catHeader = document.createElement('h4');
                             catHeader.innerText = cat.label;
-                            keepTogetherDiv.appendChild(catHeader);
+                            section.appendChild(catHeader);
                             
-                            items.forEach((itemObj, index) => {
+                            items.forEach((itemObj) => {
                                 const itemDiv = document.createElement('div');
                                 itemDiv.className = 'report-item-block';
                                 
@@ -569,12 +537,7 @@
                                     itemDiv.appendChild(descP);
                                 }
                                 
-                                if (index === 0) {
-                                    keepTogetherDiv.appendChild(itemDiv);
-                                    section.appendChild(keepTogetherDiv);
-                                } else {
-                                    section.appendChild(itemDiv);
-                                }
+                                section.appendChild(itemDiv);
                             });
                             
                             screensDiv.appendChild(section);
@@ -589,26 +552,23 @@
             });
         }
 
-        // --- 7. PDF KAYDETME VE GERİ YÜKLEME ---
         function generatePDF() {
             const loader = document.getElementById('loader');
             loader.style.display = 'block'; 
             
             const element = document.getElementById('report-content');
             const dateStr = new Date().toISOString().slice(0, 10);
-            
             const rootData = { version: "v4", entries: appState.entries };
 
-            // html2pdf Konfigürasyonu - margin ve pagebreak ayarları güncellendi
             const opt = {
-                margin:       [15, 15, 15, 15],
+                margin:       [15, 12, 15, 12],
                 filename:     `TRB_Follow_Up_${dateStr}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak:    { 
-                    mode: ['css', 'legacy'], 
-                    avoid: ['.keep-together', '.report-item-block'] 
+                    mode: 'css',
+                    avoid: ['.report-item-block', '.screenshot-item']
                 }
             };
 
