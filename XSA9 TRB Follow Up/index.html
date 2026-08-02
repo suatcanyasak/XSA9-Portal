@@ -307,9 +307,10 @@
                 dropZone.className = 'image-drop-zone';
                 dropZone.id = `dropzone-${cat.id}`;
                 dropZone.tabIndex = 0; 
+                
+                // DOSYA YÜKLEME (INPUT) HTML'İ KALDIRILDI
                 dropZone.innerHTML = `
-                    <span class="zone-text" id="zonetext-${cat.id}">${cat.label}<br>(Tıkla, Çoklu Seç veya Yapıştır)</span>
-                    <input type="file" accept="image/*" multiple hidden>
+                    <span class="zone-text" id="zonetext-${cat.id}">${cat.label}<br>(Önce kutuya tıklayın, ardından Ctrl+V ile yapıştırın)</span>
                     <br><button type="button" class="btn-remove-img" id="btn-clear-${cat.id}">Kategorideki Tüm Görselleri Sil</button>
                 `;
                 
@@ -321,17 +322,10 @@
                 wrapper.appendChild(previewContainer);
                 imgUploadContainer.appendChild(wrapper);
 
-                const fileInput = dropZone.querySelector('input');
                 const removeBtn = dropZone.querySelector('.btn-remove-img');
 
-                dropZone.addEventListener('click', (e) => { if (e.target !== removeBtn) fileInput.click(); });
-                fileInput.addEventListener('change', (e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                        Array.from(e.target.files).forEach(file => processFile(file, cat.id));
-                        e.target.value = ''; 
-                    }
-                });
-
+                // TIKLAMA (CLICK) VE DEĞİŞİM (CHANGE) EVENT'LERİ KALDIRILDI
+                // SADECE PASTE (YAPIŞTIR) EVENT'İ AKTİF BIRAKILDI
                 dropZone.addEventListener('paste', (e) => {
                     e.preventDefault();
                     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
@@ -447,7 +441,8 @@
                 
                 if (items.length > 0) {
                     dropZone.classList.add('has-image');
-                    zoneText.innerHTML = `<strong>${items.length} görsel eklendi.</strong><br>Daha fazla eklemek için tıkla/yapıştır.`;
+                    // GÜNCELLENEN METİN
+                    zoneText.innerHTML = `<strong>${items.length} görsel eklendi.</strong><br>Daha fazla eklemek için kutuya tıklayıp yapıştırın (Ctrl+V).`;
                     
                     items.forEach((itemObj, index) => {
                         const itemWrapper = document.createElement('div');
@@ -484,7 +479,8 @@
                     });
                 } else {
                     dropZone.classList.remove('has-image');
-                    zoneText.innerHTML = `${cat.label}<br>(Tıkla, Çoklu Seç veya Yapıştır)`;
+                    // GÜNCELLENEN METİN
+                    zoneText.innerHTML = `${cat.label}<br>(Önce kutuya tıklayın, ardından Ctrl+V ile yapıştırın)`;
                 }
             });
         }
