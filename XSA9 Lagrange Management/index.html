@@ -16,6 +16,9 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- html2pdf.js Kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         .table-input::-webkit-outer-spin-button, .table-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -407,11 +410,16 @@
                                 <p class="text-slate-400 text-xs">Aktif Süre: ${effectiveHours} Saat (Kapasite uygulamak için tıklayın)</p>
                             </div>
                             <div class="flex items-center space-x-2 bg-slate-700 dark:bg-slate-800 p-2 rounded-lg border border-slate-600 dark:border-slate-700 pointer-events-auto" onclick="event.stopPropagation()">
-                                <label class="text-sm font-medium text-slate-300 whitespace-nowrap">Kapasite / Gün:</label>
+                                <label class="text-sm font-medium text-slate-300 whitespace-nowrap hidden sm:block">Kapasite / Gün:</label>
                                 <input type="number" id="${tableId}-cap-input" value="${tableCapacities[index] || ''}" 
                                        oninput="handleManualCapacity(${index}, this.value)" 
-                                       placeholder="Örn: 18000" 
-                                       class="w-24 bg-slate-900 dark:bg-slate-950 border-none rounded text-white px-2 py-1 outline-none focus:ring-1 focus:ring-blue-400 text-right font-bold">
+                                       placeholder="Örn: 180" 
+                                       class="w-20 bg-slate-900 dark:bg-slate-950 border-none rounded text-white px-2 py-1 outline-none focus:ring-1 focus:ring-blue-400 text-right font-bold">
+                                
+                                <!-- PDF Dışa Aktarma Butonu -->
+                                <button onclick="exportTableToPDF(${index}, event)" class="bg-rose-500/90 hover:bg-rose-500 text-white p-1.5 rounded transition-colors flex items-center justify-center ml-1" title="Tabloyu PDF Olarak Kaydet">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                </button>
                             </div>
                         </div>
 
@@ -446,6 +454,80 @@
                     calcLagrange(index, tableCapacities[index]);
                 }
             });
+        }
+
+        // PDF İndirme ve Konum Seçme Fonksiyonu
+        async function exportTableToPDF(tableIndex, event) {
+            if (event) event.stopPropagation();
+
+            const element = document.getElementById(`l-card-${tableIndex}`);
+            const titleEl = document.getElementById(`l-table-${tableIndex}-title`);
+            
+            let filename = `Lagrange_Tablo_${tableIndex + 1}.pdf`;
+            if (titleEl && titleEl.innerText) {
+                filename = `${titleEl.innerText.replace(/[^a-zA-Z0-9_-]/g, "_")}.pdf`;
+            }
+
+            const originalClasses = element.className;
+            element.classList.remove('hover:border-blue-400', 'dark:hover:border-blue-500', 'cursor-pointer');
+            
+            const opt = {
+                margin:       [10, 5, 10, 5], 
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    scrollX: 0,
+                    scrollY: 0,
+                    onclone: (clonedDoc) => {
+                        const clonedElement = clonedDoc.getElementById(`l-card-${tableIndex}`);
+                        clonedElement.style.width = '1000px'; 
+                        clonedElement.style.maxWidth = '1000px';
+                        clonedElement.style.margin = '0';
+                        
+                        const overflowDiv = clonedElement.querySelector('.overflow-x-auto');
+                        if (overflowDiv) {
+                            overflowDiv.classList.remove('overflow-x-auto');
+                            overflowDiv.style.overflow = 'visible';
+                        }
+                        clonedElement.classList.remove('hover:border-blue-400', 'dark:hover:border-blue-500', 'cursor-pointer');
+                    }
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            try {
+                // PDF'i bellekte Blob nesnesi olarak oluşturuyoruz
+                const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+
+                // Kullanıcının kayıt yeri ve klasör seçebilmesi için File System Access API kontrolü
+                if ('showSaveFilePicker' in window) {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: filename,
+                        types: [{
+                            description: 'PDF Dosyası',
+                            accept: { 'application/pdf': ['.pdf'] },
+                        }],
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(pdfBlob);
+                    await writable.close();
+                } else {
+                    // API desteklemeyen tarayıcılar için standart indirme yöntemi yedek olarak çalışır
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(pdfBlob);
+                    link.download = filename;
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                }
+            } catch (err) {
+                // Kullanıcı kaydetme penceresini iptal ederse hata fırlatılır, bunu yoksayıyoruz
+                if (err.name !== 'AbortError') {
+                    console.error("PDF kaydetme işleminde hata oluştu:", err);
+                }
+            } finally {
+                element.className = originalClasses;
+            }
         }
 
         function updateRate(tableIndex, rowIndex, value) {
