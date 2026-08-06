@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XSA9 Lagrange Management</title>
+    <title>XSA9 Lagrange Management & PDF Birleştirici</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,6 +18,9 @@
 
     <!-- html2pdf.js Kütüphanesi -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- PDF-Lib Kütüphanesi -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -48,7 +51,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-slate-800 dark:text-white">XSA9 Lagrange Management</h1>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm">Otomatik Labor Dağıtımı</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm">Otomatik Labor Dağıtımı & PDF Araçları</p>
                 </div>
             </div>
 
@@ -110,6 +113,56 @@
                 </div>
             </div>
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6" id="lagrange-grid"></div>
+        </section>
+
+        <!-- BÖLÜM 3: PDF Birleştirici Entegrasyonu -->
+        <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-colors">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center">
+                    <span class="bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 w-8 h-8 rounded-lg flex items-center justify-center mr-3 font-bold border border-indigo-200 dark:border-indigo-800">PDF</span>
+                    PDF Birleştirme Aracı
+                </h2>
+                <span class="text-xs font-medium bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 px-3 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800/50">Tarayıcıda Güvenli İşlem</span>
+            </div>
+
+            <!-- Upload Dropzone -->
+            <div id="dropzone" class="border-2 border-dashed border-indigo-300 dark:border-indigo-700 bg-slate-50 dark:bg-slate-900/50 hover:bg-indigo-50/50 dark:hover:bg-slate-900 transition-all rounded-2xl p-8 text-center cursor-pointer shadow-sm mb-6">
+                <input type="file" id="fileInput" multiple accept="application/pdf" class="hidden">
+                <div class="flex flex-col items-center justify-center space-y-3 pointer-events-none">
+                    <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-2xl">
+                        📄
+                    </div>
+                    <div>
+                        <p class="text-lg font-semibold text-slate-700 dark:text-slate-200">PDF dosyalarını buraya sürükleyin veya <span class="text-indigo-600 dark:text-indigo-400 underline">bilgisayardan seçin</span></p>
+                        <p class="text-sm text-slate-400 mt-1">Birden fazla dosya seçebilirsiniz</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File List Section -->
+            <div id="fileSection" class="hidden bg-slate-50 dark:bg-slate-900/50 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-800 dark:text-white text-lg">Seçilen Dosyalar (<span id="fileCount">0</span>)</h3>
+                    <button id="clearAllBtn" class="text-sm text-red-500 hover:text-red-700 font-medium transition-colors">Tümünü Temizle</button>
+                </div>
+                <ul id="fileList" class="space-y-3">
+                    <!-- Dinamik Dosya Listesi Buraya Gelecek -->
+                </ul>
+            </div>
+
+            <!-- Action Button -->
+            <div id="actionSection" class="hidden text-center">
+                <button id="mergeBtn" class="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center justify-center mx-auto space-x-2 text-lg">
+                    <span>PDF'leri Birleştir ve İndir</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </button>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="hidden text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent"></div>
+                <p class="text-slate-600 dark:text-slate-400 font-medium mt-3">PDF'ler birleştiriliyor, lütfen bekleyin...</p>
+            </div>
         </section>
         
     </div>
@@ -181,6 +234,7 @@
             document.getElementById('start-date').valueAsDate = new Date();
             generateDailyTable();
             renderLagrangeTables();
+            initPdfMerger();
         });
 
         function generateDailyTable() {
@@ -497,10 +551,8 @@
             };
 
             try {
-                // PDF'i bellekte Blob nesnesi olarak oluşturuyoruz
                 const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
 
-                // Kullanıcının kayıt yeri ve klasör seçebilmesi için File System Access API kontrolü
                 if ('showSaveFilePicker' in window) {
                     const handle = await window.showSaveFilePicker({
                         suggestedName: filename,
@@ -513,7 +565,6 @@
                     await writable.write(pdfBlob);
                     await writable.close();
                 } else {
-                    // API desteklemeyen tarayıcılar için standart indirme yöntemi yedek olarak çalışır
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(pdfBlob);
                     link.download = filename;
@@ -521,7 +572,6 @@
                     URL.revokeObjectURL(link.href);
                 }
             } catch (err) {
-                // Kullanıcı kaydetme penceresini iptal ederse hata fırlatılır, bunu yoksayıyoruz
                 if (err.name !== 'AbortError') {
                     console.error("PDF kaydetme işleminde hata oluştu:", err);
                 }
@@ -599,6 +649,169 @@
                 maximumFractionDigits: decimals 
             });
         }
+
+        // --- PDF Birleştirici Mantığı (pdf-lib) ---
+        let pdfFiles = [];
+
+        function initPdfMerger() {
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('fileInput');
+            const fileSection = document.getElementById('fileSection');
+            const fileList = document.getElementById('fileList');
+            const fileCount = document.getElementById('fileCount');
+            const actionSection = document.getElementById('actionSection');
+            const mergeBtn = document.getElementById('mergeBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const loading = document.getElementById('loading');
+
+            dropzone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFiles(e.target.files);
+                }
+                fileInput.value = '';
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.add('border-indigo-600', 'bg-indigo-50/70', 'dark:bg-slate-900');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.remove('border-indigo-600', 'bg-indigo-50/70', 'dark:bg-slate-900');
+                }, false);
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files && files.length > 0) {
+                    handleFiles(files);
+                }
+            });
+
+            clearAllBtn.addEventListener('click', () => {
+                pdfFiles = [];
+                updatePdfUI();
+            });
+
+            mergeBtn.addEventListener('click', async () => {
+                if (pdfFiles.length < 2) {
+                    alert('Lütfen en az 2 adet PDF dosyası seçin.');
+                    return;
+                }
+
+                loading.classList.remove('hidden');
+                actionSection.classList.add('hidden');
+                fileSection.classList.add('hidden');
+                dropzone.classList.add('hidden');
+
+                try {
+                    const { PDFDocument } = PDFLib;
+                    const mergedPdf = await PDFDocument.create();
+
+                    for (let item of pdfFiles) {
+                        const arrayBuffer = await item.file.arrayBuffer();
+                        const pdf = await PDFDocument.load(arrayBuffer);
+                        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                        copiedPages.forEach((page) => mergedPdf.addPage(page));
+                    }
+
+                    const mergedPdfFile = await mergedPdf.save();
+                    const blob = new Blob([mergedPdfFile], { type: 'application/pdf' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'birlestirilmis-belge.pdf';
+                    link.click();
+
+                    pdfFiles = [];
+                    updatePdfUI();
+                } catch (error) {
+                    console.error(error);
+                    alert('PDF dosyaları birleştirilirken bir hata oluştu.');
+                } finally {
+                    loading.classList.add('hidden');
+                    dropzone.classList.remove('hidden');
+                }
+            });
+        }
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type === 'application/pdf') {
+                    pdfFiles.push({
+                        id: Math.random().toString(36).substring(2, 9),
+                        file: file,
+                        name: file.name,
+                        size: (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+                    });
+                } else {
+                    alert(`"${file.name}" geçerli bir PDF dosyası değil.`);
+                }
+            }
+            updatePdfUI();
+        }
+
+        function updatePdfUI() {
+            const fileSection = document.getElementById('fileSection');
+            const actionSection = document.getElementById('actionSection');
+            const fileCount = document.getElementById('fileCount');
+            const fileList = document.getElementById('fileList');
+
+            if (pdfFiles.length > 0) {
+                fileSection.classList.remove('hidden');
+                actionSection.classList.remove('hidden');
+                fileCount.textContent = pdfFiles.length;
+            } else {
+                fileSection.classList.add('hidden');
+                actionSection.classList.add('hidden');
+            }
+
+            fileList.innerHTML = '';
+            pdfFiles.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-xl shadow-xs';
+                li.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <span class="bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center shrink-0">${index + 1}</span>
+                        <div class="truncate">
+                            <p class="font-medium text-slate-800 dark:text-slate-200 text-sm truncate">${item.name}</p>
+                            <span class="text-xs text-slate-400">${item.size}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-1 shrink-0 ml-2">
+                        <button onclick="movePdfItem(${index}, -1)" ${index === 0 ? 'disabled class="opacity-30 cursor-not-allowed"' : ''} class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 transition-colors" title="Yukarı Taşı">⬆️</button>
+                        <button onclick="movePdfItem(${index}, 1)" ${index === pdfFiles.length - 1 ? 'disabled class="opacity-30 cursor-not-allowed"' : ''} class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 transition-colors" title="Aşağı Taşı">⬇️</button>
+                        <button onclick="removePdfItem(${index})" class="p-1.5 hover:bg-red-100 dark:hover:bg-red-950/50 rounded-lg text-red-500 transition-colors" title="Kaldır">❌</button>
+                    </div>
+                `;
+                fileList.appendChild(li);
+            });
+        }
+
+        window.movePdfItem = function(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < pdfFiles.length) {
+                const temp = pdfFiles[index];
+                pdfFiles[index] = pdfFiles[newIndex];
+                pdfFiles[newIndex] = temp;
+                updatePdfUI();
+            }
+        };
+
+        window.removePdfItem = function(index) {
+            pdfFiles.splice(index, 1);
+            updatePdfUI();
+        };
     </script>
 </body>
 </html>
