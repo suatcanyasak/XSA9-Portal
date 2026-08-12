@@ -439,6 +439,26 @@
         }
     </style>
 </head>
+<script>
+window.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "XSA9_CSV_DATA") {
+        const file = new File([event.data.csv], "shipmentItemList.csv", { type: "text/csv" });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+
+        const fileInput = document.getElementById("csvFile");
+        if (fileInput) {
+            fileInput.files = dt.files;
+            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        const btn = document.getElementById("processBtn");
+        if (btn) btn.click();
+
+        console.log("✅ CSV otomatik yüklendi ve hesaplatıldı!");
+    }
+});
+</script>
 <body>
 
 <div class="container">
