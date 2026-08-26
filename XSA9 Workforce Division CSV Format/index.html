@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XSA9 Auto Workforce Division Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #2563eb;
@@ -139,7 +140,6 @@
             display: block;
         }
 
-        /* --- YENİ EKLENEN CPT TABLOSU STİLLERİ --- */
         .cpt-table-container {
             max-height: 220px;
             overflow-y: auto;
@@ -192,7 +192,6 @@
             border: 1px solid var(--border);
         }
 
-        /* Tıklanabilir Ve Gizlenebilir Kart Başlık Yapısı */
         .card-header-toggle {
             background-color: var(--excel-section);
             padding: 12px;
@@ -221,7 +220,6 @@
             transform: rotate(-90deg);
         }
 
-        /* Katlanabilir İçerik Alanı */
         .card-content-collapse {
             max-height: 5000px;
             overflow: hidden;
@@ -233,7 +231,6 @@
             margin-top: 0 !important;
         }
 
-        /* KPI & Simülasyon Paneli Stilleri */
         .kpi-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -255,7 +252,6 @@
             margin-bottom: 5px;
         }
 
-        /* Kalan İşler Tablosu Stili */
         .backlog-table {
             width: 100%;
             border-collapse: collapse;
@@ -437,6 +433,16 @@
             display: none;
             font-weight: 500;
         }
+
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+        .sortable-header:hover {
+            opacity: 0.8;
+            filter: brightness(0.95);
+        }
     </style>
 </head>
 <body>
@@ -546,6 +552,13 @@
                         <div class="section-title-bar">KAT KIRILIM</div>
                         <table class="floor-table" id="floorTable" style="margin-top:8px;"></table>
                     </div>
+
+                    <!-- MULTI BATCH TABLOSU -->
+                    <div class="bottom-table-container">
+                        <div class="section-title-bar">MULTI BATCH & ZONE KIRILIM</div>
+                        <table class="floor-table" id="multiBatchTable" style="margin-top:8px;"></table>
+                    </div>
+
                 </div>
             </div>
 
@@ -583,17 +596,24 @@
     let zoneChartInstance = null;
     let selectedProcessPathFilter = null;
     
+    // Sıralama Değişkenleri
+    let multiBatchSortCol = 'default'; // 'default', 'cpt', 'total', 'dwell'
+    let multiBatchSortDir = 'desc';    // 'desc', 'asc'
+    
     const PATH_GROUPS = ["SINGLE", "MULTI", "NONSORT", "GIFT SINGLE", "GIFT MULTI"];
     const ZONE_HEADERS = ["A-HRV", "A", "B", "C", "D", "M", "E"];
     const FLOOR_HEADERS = [
         "A-HRV", "1-A", "2-A", "3-A", "4-A", "1-B", "2-B", "3-B", "4-B", 
         "1-C", "2-C", "3-C", "4-C", "1-D", "1-M", "1-E"
     ];
+    
+    // VERİ SÜTUN İNDEKSLERİ 
+    const COL_CPT = 3;
     const COL_ZONE = 4;   
     const COL_PP = 9;      
+    const COL_BATCH = 11;
     const COL_QTY = 12;   
-    const COL_BATCH = 11; 
-    const COL_CPT = 3;
+    const COL_DWELL = 14; 
 
     function setCurrentTimeToInput() {
         const now = new Date();
@@ -610,6 +630,22 @@
         const content = document.getElementById(contentId);
         content.classList.toggle('collapsed');
         headerEl.classList.toggle('collapsed');
+    }
+
+    function toggleMultiBatchSort(columnName) {
+        if (multiBatchSortCol === columnName) {
+            if (multiBatchSortDir === 'desc') {
+                multiBatchSortDir = 'asc';
+            } else if (multiBatchSortDir === 'asc') {
+                multiBatchSortCol = 'default';
+                multiBatchSortDir = 'desc';
+            }
+        } else {
+            multiBatchSortCol = columnName;
+            multiBatchSortDir = 'desc';
+        }
+        
+        if (rawData.length > 0) processData(rawData);
     }
 
     function formatHoursToReadable(hoursValue) {
@@ -712,7 +748,6 @@
             }
         }
 
-        // Tüm benzersiz CPT'leri al, sırala ve tabloyu oluştur
         uniqueCPTs = Array.from(cptSet).sort((a, b) => a - b);
         selectedCPTs.clear();
         renderCPTTable();
@@ -733,7 +768,6 @@
         tbody.innerHTML = '';
         uniqueCPTs.forEach(cptTime => {
             let d = new Date(cptTime);
-            // Tarih ve saati düzgün formatta gösterelim
             let formatted = d.toLocaleString('tr-TR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
             
             let tr = document.createElement('tr');
@@ -754,7 +788,6 @@
                     selectedCPTs.add(cTime);
                     this.classList.add('selected-cpt');
                 }
-                // Seçim yapıldıktan sonra tüm sistemi bu verilere göre güncelle
                 processData(rawData);
             });
             
@@ -812,7 +845,6 @@
         demand += Math.ceil(uD / (pphVal / 2));
         let totalFlexibleUnits = uA_Hrv + uA + uB + uC;
         demand += Math.ceil(totalFlexibleUnits / pphVal);
-
         return demand;
     }
 
@@ -973,7 +1005,11 @@
             zoneMatrix[p] = {}; ZONE_HEADERS.forEach(z => zoneMatrix[p][z] = 0);
             floorMatrix[p] = {}; FLOOR_HEADERS.forEach(f => floorMatrix[p][f] = 0);
         });
+        
         let nonsortBatches = {};
+        let multiBatches = {};
+        let multiBatchesDwell = {}; 
+        let multiBatchesCpt = {}; // Her batch için en erken CPT'yi saklamak için yeni obje
 
         data.forEach(row => {
             if(row.length <= Math.max(COL_ZONE, COL_PP, COL_QTY, COL_CPT)) return;
@@ -983,12 +1019,12 @@
             let qty = parseFloat(row[COL_QTY]) || 0;
             let batchID = (row[COL_BATCH] || "").trim();
             let rawCPT = row[COL_CPT] || "";
+            let dwellVal = parseFloat(row[COL_DWELL]) || 0; 
             
             if(!rawPP || !rawLoc) return;
 
             let rowCptTime = Date.parse(rawCPT.replace(/"/g, ''));
             if (!isNaN(rowCptTime)) {
-                // Eğer CPT seçimi yapıldıysa ve bu satırın CPT'si seçilenler arasında yoksa atla
                 if (selectedCPTs.size > 0 && !selectedCPTs.has(rowCptTime)) {
                     return; 
                 }
@@ -1000,8 +1036,6 @@
                     });
                 }
             } else {
-                 // CPT verisi bozuk veya yoksa (ve çoklu seçim devredeyse) atla 
-                 // (Sadece "hiçbiri seçilmediyse" eklenir)
                  if (selectedCPTs.size > 0) return; 
             }
 
@@ -1028,6 +1062,7 @@
             }
 
             globalZoneTotals[locInfo.zone] += qty;
+            
             if(group === "NONSORT" && batchID) {
                 if(!nonsortBatches[batchID]) {
                     nonsortBatches[batchID] = { zones: new Set(), floors: new Set(), qty: 0 };
@@ -1035,6 +1070,25 @@
                 nonsortBatches[batchID].zones.add(locInfo.zone);
                 nonsortBatches[batchID].floors.add(locInfo.floor);
                 nonsortBatches[batchID].qty += qty;
+            }
+
+            if(group === "MULTI" && batchID) {
+                if(!multiBatches[batchID]) {
+                    multiBatches[batchID] = {};
+                    ZONE_HEADERS.forEach(z => multiBatches[batchID][z] = 0);
+                    multiBatchesDwell[batchID] = 0;
+                    multiBatchesCpt[batchID] = Infinity; // Başlangıçta sonsuz yapıyoruz ki min. değeri bulalım
+                }
+                multiBatches[batchID][locInfo.zone] += qty;
+                
+                if (dwellVal > multiBatchesDwell[batchID]) {
+                    multiBatchesDwell[batchID] = dwellVal;
+                }
+                
+                // En erken CPT tespiti
+                if (!isNaN(rowCptTime) && rowCptTime < multiBatchesCpt[batchID]) {
+                    multiBatchesCpt[batchID] = rowCptTime;
+                }
             }
         });
 
@@ -1070,6 +1124,92 @@
         floorHTML += "</tbody>";
         document.getElementById('floorTable').innerHTML = floorHTML;
 
+        // MULTI BATCH TABLOSU İKONLARI
+        let sortIconCpt = multiBatchSortCol === 'cpt' ? (multiBatchSortDir === 'desc' ? ' ▼' : ' ▲') : ' ↕';
+        let sortIconTotal = multiBatchSortCol === 'total' ? (multiBatchSortDir === 'desc' ? ' ▼' : ' ▲') : ' ↕';
+        let sortIconDwell = multiBatchSortCol === 'dwell' ? (multiBatchSortDir === 'desc' ? ' ▼' : ' ▲') : ' ↕';
+
+        let multiBatchHTML = `
+            <thead>
+                <tr>
+                    <th style="text-align:left; width:120px;">Batch ID</th>
+                    <th class="sortable-header" style="font-size:10px; background:#eff6ff; color:#1e40af;" onclick="toggleMultiBatchSort('cpt')" title="Sıralamak için tıklayın">CPT${sortIconCpt}</th>
+                    ${ZONE_HEADERS.map(z => `<th style="font-size:10px;">${z}</th>`).join('')}
+                    <th class="sortable-header" style="font-size:10px; background:var(--highlight);" onclick="toggleMultiBatchSort('total')" title="Sıralamak için tıklayın">TOPLAM${sortIconTotal}</th>
+                    <th class="sortable-header" style="font-size:10px; background:#fef3c7; color:#92400e;" onclick="toggleMultiBatchSort('dwell')" title="Sıralamak için tıklayın">Max Dwell${sortIconDwell}</th>
+                </tr>
+            </thead>
+            <tbody>`;
+            
+        let isMultiDimmed = selectedProcessPathFilter && selectedProcessPathFilter !== "MULTI";
+        let multiBatchKeys = Object.keys(multiBatches);
+        
+        if (multiBatchKeys.length === 0) {
+            multiBatchHTML += `<tr><td colspan="${ZONE_HEADERS.length + 4}" style="text-align:center; color:var(--text-muted); padding: 15px;">Filtrelenen aralıkta Multi Batch verisi bulunamadı.</td></tr>`;
+        } else {
+            // Sıralama için veriyi hazırlama
+            let multiBatchData = multiBatchKeys.map(bId => {
+                let rowTotal = 0;
+                ZONE_HEADERS.forEach(z => rowTotal += multiBatches[bId][z]);
+                let maxDwell = multiBatchesDwell[bId];
+                let earliestCpt = multiBatchesCpt[bId];
+                return { bId, rowTotal, maxDwell, earliestCpt };
+            });
+
+            // Sistemdeki en erken CPT'yi bul (vurgu yapmak için)
+            let validCpts = multiBatchData.map(d => d.earliestCpt).filter(c => c !== Infinity);
+            let absoluteEarliestCpt = validCpts.length > 0 ? Math.min(...validCpts) : null;
+
+            // Seçili Sütuna ve Yöne Göre Sıralama
+            if (multiBatchSortCol === 'total') {
+                multiBatchData.sort((a, b) => multiBatchSortDir === 'desc' ? b.rowTotal - a.rowTotal : a.rowTotal - b.rowTotal);
+            } else if (multiBatchSortCol === 'dwell') {
+                multiBatchData.sort((a, b) => multiBatchSortDir === 'desc' ? b.maxDwell - a.maxDwell : a.maxDwell - b.maxDwell);
+            } else if (multiBatchSortCol === 'cpt') {
+                multiBatchData.sort((a, b) => multiBatchSortDir === 'desc' ? b.earliestCpt - a.earliestCpt : a.earliestCpt - b.earliestCpt);
+            } else {
+                multiBatchData.sort((a, b) => a.bId.localeCompare(b.bId));
+            }
+
+            multiBatchData.forEach(item => {
+                let bId = item.bId;
+                let rowTotal = item.rowTotal;
+                let maxDwell = item.maxDwell;
+                let earliestCpt = item.earliestCpt;
+                
+                let cptDisplay = "-";
+                let isEarliest = false;
+                
+                if (earliestCpt !== Infinity) {
+                    let d = new Date(earliestCpt);
+                    cptDisplay = d.toLocaleString('tr-TR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+                    if (earliestCpt === absoluteEarliestCpt) {
+                        isEarliest = true;
+                    }
+                }
+                
+                // En erken CPT ise kırmızı arka plan ver
+                let cptStyle = isEarliest 
+                    ? 'background-color:#fee2e2; color:#991b1b; font-weight:bold; font-size:11px;' 
+                    : 'background-color:var(--background); font-size:11px;';
+                
+                let rowCells = ZONE_HEADERS.map(z => {
+                    let val = multiBatches[bId][z];
+                    return `<td style="${val > 0 ? 'background:rgba(59, 130, 246, 0.15); font-weight:bold;' : ''}">${val}</td>`;
+                }).join('');
+                
+                multiBatchHTML += `<tr style="opacity: ${isMultiDimmed ? '0.2' : '1'}">
+                    <td style="font-weight:bold; text-align:left; background:var(--table-header);">${bId}</td>
+                    <td style="${cptStyle}">${cptDisplay}</td>
+                    ${rowCells}
+                    <td style="background:var(--highlight); font-weight:bold;">${rowTotal}</td>
+                    <td style="background:#fffbeb; color:#92400e; font-weight:bold;">${maxDwell > 0 ? maxDwell : '-'}</td>
+                </tr>`;
+            });
+        }
+        multiBatchHTML += "</tbody>";
+        document.getElementById('multiBatchTable').innerHTML = multiBatchHTML;
+
         const singleDemandRaw = calculateRawDemand("SINGLE", pphS);
         const multiDemandRaw = calculateRawDemand("MULTI", pphM);
         const nonsortDemandRaw = Object.keys(nonsortBatches).length;
@@ -1098,31 +1238,26 @@
         document.getElementById('kpiPanel').style.display = "grid";
         let totalWorkHours = 0;
 
-        // SINGLE
         const singleD = zoneMatrix["SINGLE"]["D"];
         const singleE = zoneMatrix["SINGLE"]["E"];
         const singleNormal = Math.max(0, ppTotals["SINGLE"] - singleD - singleE);
         totalWorkHours += (singleNormal / pphS) + (singleD / (pphS / 2)) + (singleE / (pphS * 2));
 
-        // MULTI
         const multiD = zoneMatrix["MULTI"]["D"];
         const multiE = zoneMatrix["MULTI"]["E"];
         const multiNormal = Math.max(0, ppTotals["MULTI"] - multiD - multiE);
         totalWorkHours += (multiNormal / pphM) + (multiD / (pphM / 2)) + (multiE / (pphM * 2));
 
-        // GIFT SINGLE
         const giftSingleDForEta = zoneMatrix["GIFT SINGLE"]["D"];
         const giftSingleEForEta = zoneMatrix["GIFT SINGLE"]["E"];
         const giftSingleNormalForEta = Math.max(0, ppTotals["GIFT SINGLE"] - giftSingleDForEta - giftSingleEForEta);
         totalWorkHours += (giftSingleNormalForEta / pphS) + (giftSingleDForEta / (pphS / 2)) + (giftSingleEForEta / (pphS * 2));
 
-        // GIFT MULTI
         const giftMultiDForEta = zoneMatrix["GIFT MULTI"]["D"];
         const giftMultiEForEta = zoneMatrix["GIFT MULTI"]["E"];
         const giftMultiNormalForEta = Math.max(0, ppTotals["GIFT MULTI"] - giftMultiDForEta - giftMultiEForEta);
         totalWorkHours += (giftMultiNormalForEta / pphM) + (giftMultiDForEta / (pphM / 2)) + (giftMultiEForEta / (pphM * 2));
 
-        // NONSORT
         totalWorkHours += (ppTotals["NONSORT"] / pphN);
 
         let etaHours = 0;
@@ -1418,25 +1553,6 @@
         `;
     }
 </script>
-<script>
-window.addEventListener("message", (event) => {
-    if (event.data && event.data.type === "XSA9_CSV_DATA") {
-        const file = new File([event.data.csv], "shipmentItemList.csv", { type: "text/csv" });
-        const dt = new DataTransfer();
-        dt.items.add(file);
 
-        const fileInput = document.getElementById("csvFile");
-        if (fileInput) {
-            fileInput.files = dt.files;
-            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-
-        const btn = document.getElementById("processBtn");
-        if (btn) btn.click();
-
-        console.log("✅ CSV otomatik yüklendi ve hesaplatıldı!");
-    }
-});
-</script>
 </body>
 </html>
