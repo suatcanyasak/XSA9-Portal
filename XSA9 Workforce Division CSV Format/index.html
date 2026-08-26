@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -562,7 +563,7 @@
                 </div>
             </div>
 
-            <div class="card" id="wfZoneCard" style="background-color: var(--excel-green);">
+            <div class="card" style="background-color: var(--excel-green);">
                 <div class="card-header-toggle" onclick="toggleCard('wfZoneContent', this)">
                     <span>WORKFORCE (BÖLGE DAĞILIMI)</span>
                     <span class="toggle-icon">▼</span>
@@ -573,7 +574,7 @@
                 </div>
             </div>
 
-            <div class="card" id="wfFloorCard" style="background-color: var(--excel-green);">
+            <div class="card" style="background-color: var(--excel-green);">
                 <div class="card-header-toggle" onclick="toggleCard('wfFloorContent', this)">
                     <span>WORKFORCE KAT (KAT BAZLI DİNAMİK DAĞITIM)</span>
                     <span class="toggle-icon">▼</span>
@@ -626,13 +627,6 @@
         setCurrentTimeToInput();
     });
 
-    // OTOMATİK VERİ AKTARIMI DİNLEYİCİSİ (Tampermonkey)
-    window.addEventListener('message', (event) => {
-        if (event.data && event.data.type === "XSA9_CSV_DATA") {
-            parseCSV(event.data.csv, true); // true = Otomatik Aktarım
-        }
-    });
-
     function toggleCard(contentId, headerEl) {
         const content = document.getElementById(contentId);
         content.classList.toggle('collapsed');
@@ -652,7 +646,7 @@
             multiBatchSortDir = 'desc';
         }
         
-        if (rawData.length > 0) processData(rawData, false);
+        if (rawData.length > 0) processData(rawData);
     }
 
     function formatHoursToReadable(hoursValue) {
@@ -680,7 +674,7 @@
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', targetTheme);
-        if(rawData.length > 0) processData(rawData, false); 
+        if(rawData.length > 0) processData(rawData); 
     });
 
     document.querySelectorAll('.clickable-row').forEach(row => {
@@ -694,7 +688,7 @@
                 selectedProcessPathFilter = clickedPath;
                 this.classList.add('selected-filter');
             }
-            processData(rawData, false);
+            processData(rawData);
         });
     });
 
@@ -702,7 +696,7 @@
     
     document.getElementById('processBtn').addEventListener('click', () => {
         setCurrentTimeToInput(); 
-        processData(rawData, false);
+        processData(rawData);
     });
 
     function handleFile(e) {
@@ -710,11 +704,11 @@
         if (!file) return;
         document.getElementById('uploadLabel').innerText = "📁 " + file.name;
         const reader = new FileReader();
-        reader.onload = function(evt) { parseCSV(evt.target.result, false); }; // false = Manuel Aktarım
+        reader.onload = function(evt) { parseCSV(evt.target.result); };
         reader.readAsText(file, 'UTF-8');
     }
 
-    function parseCSV(text, isAuto = false) {
+    function parseCSV(text) {
         const lines = text.split(/\r?\n/);
         rawData = [];
         let cptSet = new Set();
@@ -762,7 +756,7 @@
         setCurrentTimeToInput();
         selectedProcessPathFilter = null;
         document.querySelectorAll('.clickable-row').forEach(r => r.classList.remove('selected-filter'));
-        processData(rawData, isAuto);
+        processData(rawData);
     }
     
     function renderCPTTable() {
@@ -795,7 +789,7 @@
                     selectedCPTs.add(cTime);
                     this.classList.add('selected-cpt');
                 }
-                processData(rawData, false);
+                processData(rawData);
             });
             
             tbody.appendChild(tr);
@@ -993,7 +987,7 @@
     let zoneMatrix = {}; 
     let floorMatrix = {};
     
-    function processData(data, isAuto = false) {
+    function processData(data) {
         if(data.length === 0) return;
 
         const pphS = parseFloat(document.getElementById('pphSingle').value) || 1;
@@ -1016,7 +1010,7 @@
         let nonsortBatches = {};
         let multiBatches = {};
         let multiBatchesDwell = {}; 
-        let multiBatchesCpt = {}; 
+        let multiBatchesCpt = {}; // Her batch için en erken CPT'yi saklamak için yeni obje
 
         data.forEach(row => {
             if(row.length <= Math.max(COL_ZONE, COL_PP, COL_QTY, COL_CPT)) return;
@@ -1084,7 +1078,7 @@
                     multiBatches[batchID] = {};
                     ZONE_HEADERS.forEach(z => multiBatches[batchID][z] = 0);
                     multiBatchesDwell[batchID] = 0;
-                    multiBatchesCpt[batchID] = Infinity; 
+                    multiBatchesCpt[batchID] = Infinity; // Başlangıçta sonsuz yapıyoruz ki min. değeri bulalım
                 }
                 multiBatches[batchID][locInfo.zone] += qty;
                 
@@ -1092,6 +1086,7 @@
                     multiBatchesDwell[batchID] = dwellVal;
                 }
                 
+                // En erken CPT tespiti
                 if (!isNaN(rowCptTime) && rowCptTime < multiBatchesCpt[batchID]) {
                     multiBatchesCpt[batchID] = rowCptTime;
                 }
@@ -1130,6 +1125,7 @@
         floorHTML += "</tbody>";
         document.getElementById('floorTable').innerHTML = floorHTML;
 
+        // MULTI BATCH TABLOSU İKONLARI
         let sortIconCpt = multiBatchSortCol === 'cpt' ? (multiBatchSortDir === 'desc' ? ' ▼' : ' ▲') : ' ↕';
         let sortIconTotal = multiBatchSortCol === 'total' ? (multiBatchSortDir === 'desc' ? ' ▼' : ' ▲') : ' ↕';
         let sortIconDwell = multiBatchSortCol === 'dwell' ? (multiBatchSortDir === 'desc' ? ' ▼' : ' ▲') : ' ↕';
@@ -1152,6 +1148,7 @@
         if (multiBatchKeys.length === 0) {
             multiBatchHTML += `<tr><td colspan="${ZONE_HEADERS.length + 4}" style="text-align:center; color:var(--text-muted); padding: 15px;">Filtrelenen aralıkta Multi Batch verisi bulunamadı.</td></tr>`;
         } else {
+            // Sıralama için veriyi hazırlama
             let multiBatchData = multiBatchKeys.map(bId => {
                 let rowTotal = 0;
                 ZONE_HEADERS.forEach(z => rowTotal += multiBatches[bId][z]);
@@ -1160,9 +1157,11 @@
                 return { bId, rowTotal, maxDwell, earliestCpt };
             });
 
+            // Sistemdeki en erken CPT'yi bul (vurgu yapmak için)
             let validCpts = multiBatchData.map(d => d.earliestCpt).filter(c => c !== Infinity);
             let absoluteEarliestCpt = validCpts.length > 0 ? Math.min(...validCpts) : null;
 
+            // Seçili Sütuna ve Yöne Göre Sıralama
             if (multiBatchSortCol === 'total') {
                 multiBatchData.sort((a, b) => multiBatchSortDir === 'desc' ? b.rowTotal - a.rowTotal : a.rowTotal - b.rowTotal);
             } else if (multiBatchSortCol === 'dwell') {
@@ -1190,6 +1189,7 @@
                     }
                 }
                 
+                // En erken CPT ise kırmızı arka plan ver
                 let cptStyle = isEarliest 
                     ? 'background-color:#fee2e2; color:#991b1b; font-weight:bold; font-size:11px;' 
                     : 'background-color:var(--background); font-size:11px;';
@@ -1552,49 +1552,6 @@
             <div class="wf-column-box ${f && f!=='GIFT SINGLE' ? 'dimmed':''}"><div class="wf-column-header">GIFT SINGLE KAT</div><div class="wf-column-body">${giftSingleResult.floorHTML}</div><div class="wf-total-row">TOTAL: ${giftSingleResult.count}</div></div>
             <div class="wf-column-box ${f && f!=='GIFT MULTI' ? 'dimmed':''}"><div class="wf-column-header">GIFT MULTI KAT</div><div class="wf-column-body">${giftMultiResult.floorHTML}</div><div class="wf-total-row">TOTAL: ${giftMultiResult.count}</div></div>
         `;
-
-        // YALNIZCA OTOMATİK VERİ AKTARIMINDA EKRAN GÖRÜNTÜSÜ AL VE WHATSAPP'A GÖNDER
-        if (isAuto) {
-            setTimeout(() => {
-                captureAndShareWorkforce();
-            }, 800);
-        }
-    }
-
-    async function captureAndShareWorkforce() {
-        try {
-            const target = document.getElementById('wfZoneCard') || document.body;
-            const canvas = await html2canvas(target, { scale: 2, useCORS: true });
-            
-            canvas.toBlob(async (blob) => {
-                if (!blob) return;
-
-                // 1. Görseli Panoya Kopyala
-                try {
-                    const item = new ClipboardItem({ "image/png": blob });
-                    await navigator.clipboard.write([item]);
-                } catch (e) {
-                    console.warn("Panoya kopyalama izni verilmedi/desteklenmiyor:", e);
-                }
-
-                // 2. BroadcastChannel İle WhatsApp Web Otomasyonuna Görseli İlet
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = function() {
-                    const channel = new BroadcastChannel('xsa9_whatsapp_bridge');
-                    channel.postMessage({
-                        type: 'XSA9_AUTO_SHARE_WHATSAPP',
-                        imageData: reader.result,
-                        timestamp: new Date().toLocaleTimeString('tr-TR')
-                    });
-
-                    // WhatsApp Web'i aç
-                    window.open('https://web.whatsapp.com', '_blank');
-                };
-            }, 'image/png');
-        } catch (err) {
-            console.error("Görsel oluşturma hatası:", err);
-        }
     }
 </script>
 
