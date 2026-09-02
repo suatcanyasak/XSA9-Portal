@@ -515,13 +515,12 @@
             });
         }
 
-        // Amazon Lagrange Uygulamasına Aktarma Fonksiyonu
         function sendToAmazonLagrange(tableIndex) {
             const data = lagrangeTemplates[tableIndex];
             const tableId = `l-table-${tableIndex}`;
             
             let payload = [];
-
+        
             data.forEach((row, rIdx) => {
                 if (row.r > 0) {
                     const multiVal = document.getElementById(`${tableId}-multi-${rIdx}`).innerText.replace(/\./g, '').replace(',', '.');
@@ -534,11 +533,21 @@
                     });
                 }
             });
-
-            localStorage.setItem('LAGRANGE_TRANSFER_DATA', JSON.stringify({
+        
+            const dataStr = JSON.stringify({
                 timestamp: Date.now(),
                 slots: payload
-            }));
+            });
+        
+            // Hem LocalStorage'a yaz hem de panoya kopyala (Cross-origin aşımı için)
+            localStorage.setItem('LAGRANGE_TRANSFER_DATA', dataStr);
+            
+            navigator.clipboard.writeText('LAGRANGE_DATA:' + dataStr).then(() => {
+                alert(`Tablo ${tableIndex + 1} verileri panoya kopyalandı!\n\nAmazon Lagrange sekmesine geçtiğinizde otomatik algılanıp doldurulacaktır.`);
+            }).catch(() => {
+                alert(`Tablo ${tableIndex + 1} verileri hazırlandı! Amazon sekmesine geçebilirsiniz.`);
+            });
+        }
 
             alert(`Tablo ${tableIndex + 1} için hesaplanan Multi/Single değerleri hafızaya alındı!\n\nAmazon Lagrange sekmesine geçtiğinizde otomatik aktarılacaktır.`);
         }
