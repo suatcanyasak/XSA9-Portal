@@ -145,9 +145,7 @@
                     <h3 class="font-bold text-slate-800 dark:text-white text-lg">Seçilen Dosyalar (<span id="fileCount">0</span>)</h3>
                     <button id="clearAllBtn" class="text-sm text-red-500 hover:text-red-700 font-medium transition-colors">Tümünü Temizle</button>
                 </div>
-                <ul id="fileList" class="space-y-3">
-                    <!-- Dinamik Dosya Listesi Buraya Gelecek -->
-                </ul>
+                <ul id="fileList" class="space-y-3"></ul>
             </div>
 
             <!-- Action Button -->
@@ -520,7 +518,7 @@
             const tableId = `l-table-${tableIndex}`;
             
             let payload = [];
-        
+
             data.forEach((row, rIdx) => {
                 if (row.r > 0) {
                     const multiVal = document.getElementById(`${tableId}-multi-${rIdx}`).innerText.replace(/\./g, '').replace(',', '.');
@@ -533,26 +531,21 @@
                     });
                 }
             });
-        
+
             const dataStr = JSON.stringify({
                 timestamp: Date.now(),
                 slots: payload
             });
-        
-            // Hem LocalStorage'a yaz hem de panoya kopyala (Cross-origin aşımı için)
+
             localStorage.setItem('LAGRANGE_TRANSFER_DATA', dataStr);
             
             navigator.clipboard.writeText('LAGRANGE_DATA:' + dataStr).then(() => {
-                alert(`Tablo ${tableIndex + 1} verileri panoya kopyalandı!\n\nAmazon Lagrange sekmesine geçtiğinizde otomatik algılanıp doldurulacaktır.`);
+                alert(`Tablo ${tableIndex + 1} verileri panoya kopyalandı!\n\nAmazon Lagrange sekmesine geçtiğinizde otomatik aktarılacaktır.`);
             }).catch(() => {
-                alert(`Tablo ${tableIndex + 1} verileri hazırlandı! Amazon sekmesine geçebilirsiniz.`);
+                alert(`Tablo ${tableIndex + 1} verileri aktarım için hazırlandı! Amazon sekmesine geçebilirsiniz.`);
             });
         }
 
-            alert(`Tablo ${tableIndex + 1} için hesaplanan Multi/Single değerleri hafızaya alındı!\n\nAmazon Lagrange sekmesine geçtiğinizde otomatik aktarılacaktır.`);
-        }
-
-        // PDF İndirme Fonksiyonu
         async function exportTableToPDF(tableIndex, event) {
             if (event) event.stopPropagation();
 
@@ -692,7 +685,6 @@
             });
         }
 
-        // PDF Birleştirici Mantığı
         let pdfFiles = [];
 
         function initPdfMerger() {
