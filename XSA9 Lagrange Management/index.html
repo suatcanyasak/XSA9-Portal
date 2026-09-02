@@ -191,119 +191,42 @@
         }
 
         let lagrangeTemplates = [
-            // Tablo 1
             [
-                { tDefault: "12.00 - 1.30", startStr: "12:00 PM", endStr: "01:30 PM", r: 1.35, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "1.30 - 1.45", startStr: "01:30 PM", endStr: "01:45 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "1.45 - 2.45", startStr: "01:45 PM", endStr: "02:45 PM", r: 1.15, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "2.45 - 3.30", startStr: "02:45 PM", endStr: "03:30 PM", r: 1.15, dur: 0.75, multiPct: 0.6 },
-                { tDefault: "3.30 - 4.00", startStr: "03:30 PM", endStr: "04:00 PM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "4.00 - 5.30", startStr: "04:00 PM", endStr: "05:30 PM", r: 1.2, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "5.30 - 5.45", startStr: "05:30 PM", endStr: "05:45 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "5.45 - 7.00", startStr: "05:45 PM", endStr: "07:00 PM", r: 1.21, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "7.00 - 8.00", startStr: "07:00 PM", endStr: "08:00 PM", r: 0.7, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "8.00 - 9.30", startStr: "08:00 PM", endStr: "09:30 PM", r: 0.7, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "9.30 - 9.45", startStr: "09:30 PM", endStr: "09:45 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "9.45 - 10.30", startStr: "09:45 PM", endStr: "10:30 PM", r: 0.725, dur: 0.75, multiPct: 0.6 },
-                { tDefault: "10.30 - 11.30", startStr: "10:30 PM", endStr: "11:30 PM", r: 0.725, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "11.30 - 12.00", startStr: "11:30 PM", endStr: "12:00 AM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "12.00 - 1.30", startStr: "12:00 AM", endStr: "01:30 AM", r: 0.725, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "1.30 - 1.45", startStr: "01:30 AM", endStr: "01:45 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "1.45 - 3.00", startStr: "01:45 AM", endStr: "03:00 AM", r: 0.8, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "3.00 - 4.00", startStr: "03:00 AM", endStr: "04:00 AM", r: 0.8, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "4.00 - 5.30", startStr: "04:00 AM", endStr: "05:30 AM", r: 0.8, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "5.30 - 5.45", startStr: "05:30 AM", endStr: "05:45 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "5.45 - 6.45", startStr: "05:45 AM", endStr: "06:45 AM", r: 1, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "6.45 - 7.30", startStr: "06:45 AM", endStr: "07:30 AM", r: 1, dur: 0.75, multiPct: 0.6 },
-                { tDefault: "7.30 - 8.00", startStr: "07:30 AM", endStr: "08:00 AM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "8.00 - 9.30", startStr: "08:00 AM", endStr: "09:30 AM", r: 1.35, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "9.30 - 9.45", startStr: "09:30 AM", endStr: "09:45 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "9.45 - 11.00", startStr: "09:45 AM", endStr: "11:00 AM", r: 1.475, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "11.00 - 12.00", startStr: "11:00 AM", endStr: "12:00 PM", r: 0.975, dur: 1, multiPct: 0.6 }
+                { t: "12.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6 }, { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "1.45 - 3.30", r: 1.15, dur: 1.75, multiPct: 0.6 },
+                { t: "3.30 - 4.00", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "4.00 - 5.30", r: 1.2, dur: 1.5, multiPct: 0.6 }, { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6 },
+                { t: "5.45 - 7.00", r: 1.21, dur: 1.25, multiPct: 0.6 }, { t: "7.00 - 9.30", r: 0.7, dur: 2.5, multiPct: 0.6 }, { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6 },
+                { t: "9.45 - 11.30", r: 0.725, dur: 1.75, multiPct: 0.6 }, { t: "11.30 - 12.00", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "12.00 - 1.30", r: 0.725, dur: 1.5, multiPct: 0.6 },
+                { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "1.45 - 3.00", r: 0.8, dur: 1.25, multiPct: 0.6 }, { t: "3.00 - 5.30", r: 0.8, dur: 2.5, multiPct: 0.6 },
+                { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "5.45 - 7.30", r: 1, dur: 1.75, multiPct: 0.6 }, { t: "7.30 - 8.00", r: 0, dur: 0.5, multiPct: 0.6 },
+                { t: "8.00 - 9.30", r: 1.35, dur: 1.5, multiPct: 0.6 }, { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.45 - 11.00", r: 1.475, dur: 1.25, multiPct: 0.6 },
+                { t: "11.00 - 12.00", r: 0.975, dur: 1, multiPct: 0.6 }
             ],
-            // Tablo 2
             [
-                { tDefault: "12.00 - 1.30", startStr: "12:00 PM", endStr: "01:30 PM", r: 1.35, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "1.30 - 1.45", startStr: "01:30 PM", endStr: "01:45 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "1.45 - 2.45", startStr: "01:45 PM", endStr: "02:45 PM", r: 1.15, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "2.45 - 3.30", startStr: "02:45 PM", endStr: "03:30 PM", r: 1.15, dur: 0.75, multiPct: 0.6 },
-                { tDefault: "3.30 - 4.00", startStr: "03:30 PM", endStr: "04:00 PM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "4.00 - 5.30", startStr: "04:00 PM", endStr: "05:30 PM", r: 1.175, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "5.30 - 5.45", startStr: "05:30 PM", endStr: "05:45 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "5.45 - 7.00", startStr: "05:45 PM", endStr: "07:00 PM", r: 1.21, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "7.00 - 8.00", startStr: "07:00 PM", endStr: "08:00 PM", r: 0.7, dur: 1, multiPct: 0.6 },
-                { tDefault: "8.00 - 9.15", startStr: "08:00 PM", endStr: "09:15 PM", r: 0.7, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "9.15 - 9.30", startStr: "09:15 PM", endStr: "09:30 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "9.30 - 10.30", startStr: "09:30 PM", endStr: "10:30 PM", r: 0.725, dur: 1, multiPct: 0.6 },
-                { tDefault: "10.30 - 12.00", startStr: "10:30 PM", endStr: "12:00 AM", r: 0.725, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "12.00 - 12.30", startStr: "12:00 AM", endStr: "12:30 AM", r: 0, dur: 0.3, multiPct: 0.6 },
-                { tDefault: "12.30 - 2.15", startStr: "12:30 AM", endStr: "02:15 AM", r: 0.8, dur: 1.75, multiPct: 0.6 },
-                { tDefault: "2.15 - 2.30", startStr: "02:15 AM", endStr: "02:30 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "2.30 - 3.30", startStr: "02:30 AM", endStr: "03:30 AM", r: 0.8, dur: 1, multiPct: 0.6 },
-                { tDefault: "3.30 - 5.15", startStr: "03:30 AM", endStr: "05:15 AM", r: 0.8, dur: 1.75, multiPct: 0.6 },
-                { tDefault: "5.15 - 5.45", startStr: "05:15 AM", endStr: "05:45 AM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "5.45 - 7.00", startStr: "05:45 AM", endStr: "07:00 AM", r: 1, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "7.00 - 8.00", startStr: "07:00 AM", endStr: "08:00 AM", r: 1, dur: 1, multiPct: 0.6 },
-                { tDefault: "8.00 - 9.15", startStr: "08:00 AM", endStr: "09:15 AM", r: 1.35, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "9.15 - 9.30", startStr: "09:15 AM", endStr: "09:30 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "9.30 - 10.30", startStr: "09:30 AM", endStr: "10:30 AM", r: 1.25, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "10.30 - 11.45", startStr: "10:30 AM", endStr: "11:45 AM", r: 1.25, dur: 1.25, multiPct: 0.6 }
+                { t: "12.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6 }, { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "1.45 - 3.30", r: 1.15, dur: 1.75, multiPct: 0.6 },
+                { t: "3.30 - 4.00", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "4.00 - 5.30", r: 1.175, dur: 1.5, multiPct: 0.6 }, { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6 },
+                { t: "5.45 - 7.00", r: 1.21, dur: 1.25, multiPct: 0.6 }, { t: "7.00 - 8.00", r: 0.7, dur: 1, multiPct: 0.6 }, { t: "8.00 - 9.15", r: 0.7, dur: 1.25, multiPct: 0.6 },
+                { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.30 - 10.30", r: 0.725, dur: 1, multiPct: 0.6 }, { t: "10.30 - 12.00", r: 0.725, dur: 1.5, multiPct: 0.6 },
+                { t: "12.00 - 12.30", r: 0, dur: 0.3, multiPct: 0.6 }, { t: "12.30 - 2.15", r: 0.8, dur: 1.75, multiPct: 0.6 }, { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6 },
+                { t: "2.30 - 3.30", r: 0.8, dur: 1, multiPct: 0.6 }, { t: "3.30 - 5.15", r: 0.8, dur: 1.75, multiPct: 0.6 }, { t: "5.15 - 5.45", r: 0, dur: 0.5, multiPct: 0.6 },
+                { t: "5.45 - 7.00", r: 1, dur: 1.25, multiPct: 0.6 }, { t: "7.00 - 8.00", r: 1, dur: 1, multiPct: 0.6 }, { t: "8.00 - 9.15", r: 1.35, dur: 1.25, multiPct: 0.6 },
+                { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.30 - 11.45", r: 1.25, dur: 2.25, multiPct: 0.6 }
             ],
-            // Tablo 3
             [
-                { tDefault: "12.15 - 2.15", startStr: "12:15 PM", endStr: "02:15 PM", r: 1.35, dur: 2, multiPct: 0.6 },
-                { tDefault: "2.15 - 2.30", startStr: "02:15 PM", endStr: "02:30 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "2.30 - 3.30", startStr: "02:30 PM", endStr: "03:30 PM", r: 1.2, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "3.30 - 4.45", startStr: "03:30 PM", endStr: "04:45 PM", r: 1.2, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "4.45 - 5.15", startStr: "04:45 PM", endStr: "05:15 PM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "5.15 - 6.00", startStr: "05:15 PM", endStr: "06:00 PM", r: 1.15, dur: 0.75, multiPct: 0.6 },
-                { tDefault: "6.00 - 7.00", startStr: "06:00 PM", endStr: "07:00 PM", r: 1.15, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "7.00 - 8.00", startStr: "07:00 PM", endStr: "08:00 PM", r: 0.7, dur: 1, multiPct: 0.6 },
-                { tDefault: "8.00 - 9.15", startStr: "08:00 PM", endStr: "09:15 PM", r: 0.7, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "9.15 - 9.30", startStr: "09:15 PM", endStr: "09:30 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "9.30 - 10.30", startStr: "09:30 PM", endStr: "10:30 PM", r: 0.7, dur: 1, multiPct: 0.6 },
-                { tDefault: "10.30 - 12.00", startStr: "10:30 PM", endStr: "12:00 AM", r: 0.7, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "12.00 - 12.30", startStr: "12:00 AM", endStr: "12:30 AM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "12.30 - 2.15", startStr: "12:30 AM", endStr: "02:15 AM", r: 0.775, dur: 1.75, multiPct: 0.6 },
-                { tDefault: "2.15 - 2.30", startStr: "02:15 AM", endStr: "02:30 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "2.30 - 3.30", startStr: "02:30 AM", endStr: "03:30 AM", r: 0.8, dur: 1, multiPct: 0.6 },
-                { tDefault: "3.30 - 5.15", startStr: "03:30 AM", endStr: "05:15 AM", r: 0.8, dur: 1.75, multiPct: 0.6 },
-                { tDefault: "5.15 - 5.45", startStr: "05:15 AM", endStr: "05:45 AM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "5.45 - 7.00", startStr: "05:45 AM", endStr: "07:00 AM", r: 1, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "7.00 - 8.00", startStr: "07:00 AM", endStr: "08:00 AM", r: 1, dur: 1, multiPct: 0.6 },
-                { tDefault: "8.00 - 9.15", startStr: "08:00 AM", endStr: "09:15 AM", r: 1.35, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "9.15 - 9.30", startStr: "09:15 AM", endStr: "09:30 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "9.30 - 10.30", startStr: "09:30 AM", endStr: "10:30 AM", r: 1.25, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "10.30 - 11.45", startStr: "10:30 AM", endStr: "11:45 AM", r: 1.25, dur: 1.25, multiPct: 0.6 }
+                { t: "12.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6 }, { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "2.30 - 4.45", r: 1.2, dur: 2.25, multiPct: 0.6 },
+                { t: "4.45 - 5.15", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "5.15 - 7.00", r: 1.15, dur: 1.75, multiPct: 0.6 }, { t: "7.00 - 8.00", r: 0.7, dur: 1, multiPct: 0.6 },
+                { t: "8.00 - 9.15", r: 0.7, dur: 1.25, multiPct: 0.6 }, { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.30 - 10.30", r: 0.7, dur: 1, multiPct: 0.6 },
+                { t: "10.30 - 12.00", r: 0.7, dur: 1.5, multiPct: 0.6 }, { t: "12.00 - 12.30", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "12.30 - 2.15", r: 0.775, dur: 1.75, multiPct: 0.6 },
+                { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "2.30 - 3.30", r: 0.8, dur: 1, multiPct: 0.6 }, { t: "3.30 - 5.15", r: 0.8, dur: 1.75, multiPct: 0.6 },
+                { t: "5.15 - 5.45", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "5.45 - 7.00", r: 1, dur: 1.25, multiPct: 0.6 }, { t: "7.00 - 8.00", r: 1, dur: 1, multiPct: 0.6 },
+                { t: "8.00 - 9.15", r: 1.35, dur: 1.25, multiPct: 0.6 }, { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.30 - 11.45", r: 1.25, dur: 2.25, multiPct: 0.6 }
             ],
-            // Tablo 4
             [
-                { tDefault: "12.15 - 2.15", startStr: "12:15 PM", endStr: "02:15 PM", r: 1.35, dur: 2, multiPct: 0.6 },
-                { tDefault: "2.15 - 2.30", startStr: "02:15 PM", endStr: "02:30 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "2.30 - 3.30", startStr: "02:30 PM", endStr: "03:30 PM", r: 1.2, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "3.30 - 4.45", startStr: "03:30 PM", endStr: "04:45 PM", r: 1.2, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "4.45 - 5.15", startStr: "04:45 PM", endStr: "05:15 PM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "5.15 - 6.00", startStr: "05:15 PM", endStr: "06:00 PM", r: 1.15, dur: 0.75, multiPct: 0.6 },
-                { tDefault: "6.00 - 7.00", startStr: "06:00 PM", endStr: "07:00 PM", r: 1.15, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "7.00 - 8.00", startStr: "07:00 PM", endStr: "08:00 PM", r: 0.7, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "8.00 - 9.30", startStr: "08:00 PM", endStr: "09:30 PM", r: 0.7, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "9.30 - 9.45", startStr: "09:30 PM", endStr: "09:45 PM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "9.45 - 10.30", startStr: "09:45 PM", endStr: "10:30 PM", r: 0.73, dur: 0.75, multiPct: 0.6 },
-                { tDefault: "10.30 - 11.30", startStr: "10:30 PM", endStr: "11:30 PM", r: 0.73, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "11.30 - 12.00", startStr: "11:30 PM", endStr: "12:00 AM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "12.00 - 1.30", startStr: "12:00 AM", endStr: "01:30 AM", r: 0.73, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "1.30 - 1.45", startStr: "01:30 AM", endStr: "01:45 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "1.45 - 3.00", startStr: "01:45 AM", endStr: "03:00 AM", r: 0.8, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "3.00 - 4.00", startStr: "03:00 AM", endStr: "04:00 AM", r: 0.8, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "4.00 - 5.30", startStr: "04:00 AM", endStr: "05:30 AM", r: 0.8, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "5.30 - 5.45", startStr: "05:30 AM", endStr: "05:45 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "5.45 - 6.45", startStr: "05:45 AM", endStr: "06:45 AM", r: 1, dur: 1.0, multiPct: 0.6 },
-                { tDefault: "6.45 - 7.30", startStr: "06:45 AM", endStr: "07:30 AM", r: 1, dur: 0.75, multiPct: 0.6 },
-                { tDefault: "7.30 - 8.00", startStr: "07:30 AM", endStr: "08:00 AM", r: 0, dur: 0.5, multiPct: 0.6 },
-                { tDefault: "8.00 - 9.30", startStr: "08:00 AM", endStr: "09:30 AM", r: 1.35, dur: 1.5, multiPct: 0.6 },
-                { tDefault: "9.30 - 9.45", startStr: "09:30 AM", endStr: "09:45 AM", r: 0, dur: 0.25, multiPct: 0.6 },
-                { tDefault: "9.45 - 11.00", startStr: "09:45 AM", endStr: "11:00 AM", r: 1.4, dur: 1.25, multiPct: 0.6 },
-                { tDefault: "11.00 - 12.00", startStr: "11:00 AM", endStr: "12:00 PM", r: 0.98, dur: 1, multiPct: 0.6 }
+                { t: "12.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6 }, { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "2.30 - 4.45", r: 1.2, dur: 2.25, multiPct: 0.6 },
+                { t: "4.45 - 5.15", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "5.15 - 7.00", r: 1.15, dur: 1.75, multiPct: 0.6 }, { t: "7.00 - 9.30", r: 0.7, dur: 2.5, multiPct: 0.6 },
+                { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.45 - 11.30", r: 0.73, dur: 1.75, multiPct: 0.6 }, { t: "11.30 - 12.00", r: 0, dur: 0.5, multiPct: 0.6 },
+                { t: "12.00 - 1.30", r: 0.73, dur: 1.5, multiPct: 0.6 }, { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "1.45 - 3.00", r: 0.8, dur: 1.25, multiPct: 0.6 },
+                { t: "3.00 - 5.30", r: 0.8, dur: 2.5, multiPct: 0.6 }, { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "5.45 - 7.30", r: 1, dur: 1.75, multiPct: 0.6 }, { t: "7.30 - 8.00", r: 0, dur: 0.5, multiPct: 0.6 },
+                { t: "8.00 - 9.30", r: 1.35, dur: 1.5, multiPct: 0.6 }, { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.45 - 11.00", r: 1.4, dur: 1.25, multiPct: 0.6 }, { t: "11.00 - 12.00", r: 0.98, dur: 1, multiPct: 0.6 }
             ]
         ];
 
@@ -413,14 +336,7 @@
             }
 
             const idx = selectedCell.index;
-            const startDateInput = document.getElementById('start-date').value;
-            let startDate = startDateInput ? new Date(startDateInput) : new Date();
-            let d = new Date(startDate);
-            d.setDate(d.getDate() + idx);
-            let month = String(d.getMonth() + 1).padStart(2, '0');
-            let day = String(d.getDate()).padStart(2, '0');
-            let mmddDate = `${month}/${day}`;
-
+            const dateStr = selectedCell.dateStr;
             const rawInput = document.querySelector(`.daily-val[data-index="${idx}"]`);
             const rawVal = parseFloat(rawInput.value);
 
@@ -433,18 +349,17 @@
             }
 
             tableCapacities[tableIndex] = valueToApply;
-            tableDates[tableIndex] = mmddDate;
+            tableDates[tableIndex] = dateStr;
 
             const capInput = document.getElementById(`l-table-${tableIndex}-cap-input`);
             if (capInput) capInput.value = valueToApply;
 
             const titleEl = document.getElementById(`l-table-${tableIndex}-title`);
             if (titleEl) {
-                titleEl.innerText = `Tablo ${tableIndex + 1} - ${mmddDate}`;
+                titleEl.innerText = `Tablo ${tableIndex + 1} - ${dateStr}`;
             }
 
             calcLagrange(tableIndex, valueToApply);
-            renderLagrangeTables();
         }
 
         function handleManualCapacity(tableIndex, value) {
@@ -454,7 +369,6 @@
                 titleEl.innerText = `Tablo ${tableIndex + 1}`;
             }
             calcLagrange(tableIndex, value);
-            renderLagrangeTables();
         }
 
         function handleExcelPaste(e, startIndex) {
@@ -514,16 +428,11 @@
                     const isBreak = row.r === 0;
                     const isNonBreak = row.dur !== 0.25 && row.dur !== 0.5;
 
-                    let timeDisplay = row.tDefault;
-                    if (tableDates[index]) {
-                        timeDisplay = `${tableDates[index]} ${row.startStr} to ${tableDates[index]} ${row.endStr}`;
-                    }
-
                     tbodyHtml += `
                         <tr class="${isBreak ? 'bg-slate-50 dark:bg-slate-900/30 text-slate-400 dark:text-slate-500' : isNonBreak ? 'bg-amber-50/70 dark:bg-amber-950/20 font-medium' : 'bg-white dark:bg-slate-800'} border-b border-slate-100 dark:border-slate-700/60 transition-colors">
                             <td class="px-3 py-1.5 whitespace-nowrap flex items-center space-x-2">
                                 ${isNonBreak && !isBreak ? '<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0" title="Mola saati olmayan aktif slot"></span>' : ''}
-                                <span class="${isNonBreak && !isBreak ? 'font-bold text-amber-800 dark:text-amber-300' : ''}">${timeDisplay}</span>
+                                <span class="${isNonBreak && !isBreak ? 'font-bold text-amber-800 dark:text-amber-300' : ''}">${row.t}</span>
                             </td>
                             <td class="px-2 py-1 text-center">
                                 <input type="number" step="0.001" value="${row.r}" 
@@ -561,6 +470,11 @@
                                        placeholder="Örn: 180" 
                                        class="w-20 bg-slate-900 dark:bg-slate-950 border-none rounded text-white px-2 py-1 outline-none focus:ring-1 focus:ring-blue-400 text-right font-bold">
                                 
+                                <!-- Amazon Lagrange Transfer Butonu -->
+                                <button onclick="sendToAmazonLagrange(${index})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded transition-colors flex items-center justify-center ml-1 text-xs font-semibold shadow" title="Bu tablonun Multis ve Singles değerlerini Amazon Lagrange'a Aktar">
+                                    🚀 Aktar
+                                </button>
+
                                 <!-- PDF Dışa Aktarma Butonu -->
                                 <button onclick="exportTableToPDF(${index}, event)" class="bg-rose-500/90 hover:bg-rose-500 text-white p-1.5 rounded transition-colors flex items-center justify-center ml-1" title="Tabloyu PDF Olarak Kaydet">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -601,7 +515,35 @@
             });
         }
 
-        // PDF İndirme ve Konum Seçme Fonksiyonu
+        // Amazon Lagrange Uygulamasına Aktarma Fonksiyonu
+        function sendToAmazonLagrange(tableIndex) {
+            const data = lagrangeTemplates[tableIndex];
+            const tableId = `l-table-${tableIndex}`;
+            
+            let payload = [];
+
+            data.forEach((row, rIdx) => {
+                if (row.r > 0) {
+                    const multiVal = document.getElementById(`${tableId}-multi-${rIdx}`).innerText.replace(/\./g, '').replace(',', '.');
+                    const singleVal = document.getElementById(`${tableId}-single-${rIdx}`).innerText.replace(/\./g, '').replace(',', '.');
+                    
+                    payload.push({
+                        timeSlot: row.t,
+                        multi: parseFloat(multiVal) || 0,
+                        single: parseFloat(singleVal) || 0
+                    });
+                }
+            });
+
+            localStorage.setItem('LAGRANGE_TRANSFER_DATA', JSON.stringify({
+                timestamp: Date.now(),
+                slots: payload
+            }));
+
+            alert(`Tablo ${tableIndex + 1} için hesaplanan Multi/Single değerleri hafızaya alındı!\n\nAmazon Lagrange sekmesine geçtiğinizde otomatik aktarılacaktır.`);
+        }
+
+        // PDF İndirme Fonksiyonu
         async function exportTableToPDF(tableIndex, event) {
             if (event) event.stopPropagation();
 
@@ -741,7 +683,7 @@
             });
         }
 
-        // --- PDF Birleştirici Mantığı (pdf-lib) ---
+        // PDF Birleştirici Mantığı
         let pdfFiles = [];
 
         function initPdfMerger() {
