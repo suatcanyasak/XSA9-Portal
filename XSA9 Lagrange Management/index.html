@@ -174,59 +174,108 @@
 
         let lagrangeTemplates = [
             [
-                { t: "12.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6 }, { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "1.45 - 3.30", r: 1.15, dur: 1.75, multiPct: 0.6 },
-                { t: "3.30 - 4.00", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "4.00 - 5.30", r: 1.2, dur: 1.5, multiPct: 0.6 }, { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6 },
-                { t: "5.45 - 7.00", r: 1.21, dur: 1.25, multiPct: 0.6 }, { t: "7.00 - 9.30", r: 0.7, dur: 2.5, multiPct: 0.6 }, { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6 },
-                { t: "9.45 - 11.30", r: 0.725, dur: 1.75, multiPct: 0.6 }, { t: "11.30 - 12.00", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "12.00 - 1.30", r: 0.725, dur: 1.5, multiPct: 0.6 },
-                { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "1.45 - 3.00", r: 0.8, dur: 1.25, multiPct: 0.6 }, { t: "3.00 - 5.30", r: 0.8, dur: 2.5, multiPct: 0.6 },
-                { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "5.45 - 7.30", r: 1, dur: 1.75, multiPct: 0.6 }, { t: "7.30 - 8.00", r: 0, dur: 0.5, multiPct: 0.6 },
-                { t: "8.00 - 9.30", r: 1.35, dur: 1.5, multiPct: 0.6 }, { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.45 - 11.00", r: 1.475, dur: 1.25, multiPct: 0.6 },
-                { t: "11.00 - 12.00", r: 0.975, dur: 1, multiPct: 0.6 }
+                { t: "12.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6, pct: 8.660 },
+                { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "1.45 - 3.30", r: 1.15, dur: 1.75, multiPct: 0.6, pct: 9.580 },
+                { t: "3.30 - 4.00", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "4.00 - 5.30", r: 1.2, dur: 1.5, multiPct: 0.6, pct: 5.080 },
+                { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "5.45 - 7.00", r: 1.21, dur: 1.25, multiPct: 0.6, pct: 4.930 },
+                { t: "7.00 - 9.30", r: 0.7, dur: 2.5, multiPct: 0.6, pct: 8.280 },
+                { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "9.45 - 11.30", r: 0.725, dur: 1.75, multiPct: 0.6, pct: 9.760 },
+                { t: "11.30 - 12.00", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "12.00 - 1.30", r: 0.725, dur: 1.5, multiPct: 0.6, pct: 5.950 },
+                { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "1.45 - 3.00", r: 0.8, dur: 1.25, multiPct: 0.6, pct: 6.640 },
+                { t: "3.00 - 5.30", r: 0.8, dur: 2.5, multiPct: 0.6, pct: 10.450 },
+                { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "5.45 - 7.30", r: 1, dur: 1.75, multiPct: 0.6, pct: 11.330 },
+                { t: "7.30 - 8.00", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "8.00 - 9.30", r: 1.35, dur: 1.5, multiPct: 0.6, pct: 8.300 },
+                { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "9.45 - 11.00", r: 1.475, dur: 1.25, multiPct: 0.6, pct: 7.120 },
+                { t: "11.00 - 12.00", r: 0.975, dur: 1, multiPct: 0.6, pct: 3.920 }
             ],
             [
-                { t: "12.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6 }, { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "1.45 - 3.30", r: 1.15, dur: 1.75, multiPct: 0.6 },
-                { t: "3.30 - 4.00", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "4.00 - 5.30", r: 1.175, dur: 1.5, multiPct: 0.6 }, { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6 },
-                { t: "5.45 - 7.00", r: 1.21, dur: 1.25, multiPct: 0.6 }, { t: "7.00 - 8.00", r: 0.7, dur: 1, multiPct: 0.6 }, { t: "8.00 - 9.15", r: 0.7, dur: 1.25, multiPct: 0.6 },
-                { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.30 - 10.30", r: 0.725, dur: 1, multiPct: 0.6 }, { t: "10.30 - 12.00", r: 0.725, dur: 1.5, multiPct: 0.6 },
-                { t: "12.00 - 12.30", r: 0, dur: 0.3, multiPct: 0.6 }, { t: "12.30 - 2.15", r: 0.8, dur: 1.75, multiPct: 0.6 }, { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6 },
-                { t: "2.30 - 3.30", r: 0.8, dur: 1, multiPct: 0.6 }, { t: "3.30 - 5.15", r: 0.8, dur: 1.75, multiPct: 0.6 }, { t: "5.15 - 5.45", r: 0, dur: 0.5, multiPct: 0.6 },
-                { t: "5.45 - 7.00", r: 1, dur: 1.25, multiPct: 0.6 }, { t: "7.00 - 8.00", r: 1, dur: 1, multiPct: 0.6 }, { t: "8.00 - 9.15", r: 1.35, dur: 1.25, multiPct: 0.6 },
-                { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.30 - 11.45", r: 1.25, dur: 2.25, multiPct: 0.6 }
+                { t: "12.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6, pct: 8.660 },
+                { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "1.45 - 3.30", r: 1.15, dur: 1.75, multiPct: 0.6, pct: 9.580 },
+                { t: "3.30 - 4.00", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "4.00 - 5.30", r: 1.175, dur: 1.5, multiPct: 0.6, pct: 5.080 },
+                { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "5.45 - 7.00", r: 1.21, dur: 1.25, multiPct: 0.6, pct: 4.930 },
+                { t: "7.00 - 8.00", r: 0.7, dur: 1, multiPct: 0.6, pct: 3.500 },
+                { t: "8.00 - 9.15", r: 0.7, dur: 1.25, multiPct: 0.6, pct: 4.670 },
+                { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "9.30 - 10.30", r: 0.725, dur: 1, multiPct: 0.6, pct: 4.900 },
+                { t: "10.30 - 12.00", r: 0.725, dur: 1.5, multiPct: 0.6, pct: 7.210 },
+                { t: "12.00 - 12.30", r: 0, dur: 0.3, multiPct: 0.6, pct: 0 },
+                { t: "12.30 - 2.15", r: 0.8, dur: 1.75, multiPct: 0.6, pct: 8.190 },
+                { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "2.30 - 3.30", r: 0.8, dur: 1, multiPct: 0.6, pct: 4.090 },
+                { t: "3.30 - 5.15", r: 0.8, dur: 1.75, multiPct: 0.6, pct: 8.870 },
+                { t: "5.15 - 5.45", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "5.45 - 7.00", r: 1, dur: 1.25, multiPct: 0.6, pct: 7.910 },
+                { t: "7.00 - 8.00", r: 1, dur: 1, multiPct: 0.6, pct: 5.160 },
+                { t: "8.00 - 9.15", r: 1.35, dur: 1.25, multiPct: 0.6, pct: 6.070 },
+                { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "9.30 - 11.45", r: 1.25, dur: 2.25, multiPct: 0.6, pct: 11.180 }
             ],
             [
-                { t: "12.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6 }, { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "2.30 - 4.45", r: 1.2, dur: 2.25, multiPct: 0.6 },
-                { t: "4.45 - 5.15", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "5.15 - 7.00", r: 1.15, dur: 1.75, multiPct: 0.6 }, { t: "7.00 - 8.00", r: 0.7, dur: 1, multiPct: 0.6 },
-                { t: "8.00 - 9.15", r: 0.7, dur: 1.25, multiPct: 0.6 }, { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.30 - 10.30", r: 0.7, dur: 1, multiPct: 0.6 },
-                { t: "10.30 - 12.00", r: 0.7, dur: 1.5, multiPct: 0.6 }, { t: "12.00 - 12.30", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "12.30 - 2.15", r: 0.775, dur: 1.75, multiPct: 0.6 },
-                { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "2.30 - 3.30", r: 0.8, dur: 1, multiPct: 0.6 }, { t: "3.30 - 5.15", r: 0.8, dur: 1.75, multiPct: 0.6 },
-                { t: "5.15 - 5.45", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "5.45 - 7.00", r: 1, dur: 1.25, multiPct: 0.6 }, { t: "7.00 - 8.00", r: 1, dur: 1, multiPct: 0.6 },
-                { t: "8.00 - 9.15", r: 1.35, dur: 1.25, multiPct: 0.6 }, { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.30 - 11.45", r: 1.25, dur: 2.25, multiPct: 0.6 }
+                { t: "12.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6, pct: 11.730 },
+                { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "2.30 - 4.45", r: 1.2, dur: 2.25, multiPct: 0.6, pct: 9.600 },
+                { t: "4.45 - 5.15", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "5.15 - 7.00", r: 1.15, dur: 1.75, multiPct: 0.6, pct: 6.350 },
+                { t: "7.00 - 8.00", r: 0.7, dur: 1, multiPct: 0.6, pct: 3.500 },
+                { t: "8.00 - 9.15", r: 0.7, dur: 1.25, multiPct: 0.6, pct: 4.670 },
+                { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "9.30 - 10.30", r: 0.7, dur: 1, multiPct: 0.6, pct: 4.900 },
+                { t: "10.30 - 12.00", r: 0.7, dur: 1.5, multiPct: 0.6, pct: 7.300 },
+                { t: "12.00 - 12.30", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "12.30 - 2.15", r: 0.775, dur: 1.75, multiPct: 0.6, pct: 8.600 },
+                { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "2.30 - 3.30", r: 0.8, dur: 1, multiPct: 0.6, pct: 4.150 },
+                { t: "3.30 - 5.15", r: 0.8, dur: 1.75, multiPct: 0.6, pct: 8.880 },
+                { t: "5.15 - 5.45", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "5.45 - 7.00", r: 1, dur: 1.25, multiPct: 0.6, pct: 7.910 },
+                { t: "7.00 - 8.00", r: 1, dur: 1, multiPct: 0.6, pct: 5.160 },
+                { t: "8.00 - 9.15", r: 1.35, dur: 1.25, multiPct: 0.6, pct: 6.070 },
+                { t: "9.15 - 9.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "9.30 - 11.45", r: 1.25, dur: 2.25, multiPct: 0.6, pct: 11.180 }
             ],
             [
-                { t: "12.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6 }, { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "2.30 - 4.45", r: 1.2, dur: 2.25, multiPct: 0.6 },
-                { t: "4.45 - 5.15", r: 0, dur: 0.5, multiPct: 0.6 }, { t: "5.15 - 7.00", r: 1.15, dur: 1.75, multiPct: 0.6 }, { t: "7.00 - 9.30", r: 0.7, dur: 2.5, multiPct: 0.6 },
-                { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.45 - 11.30", r: 0.73, dur: 1.75, multiPct: 0.6 }, { t: "11.30 - 12.00", r: 0, dur: 0.5, multiPct: 0.6 },
-                { t: "12.00 - 1.30", r: 0.73, dur: 1.5, multiPct: 0.6 }, { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "1.45 - 3.00", r: 0.8, dur: 1.25, multiPct: 0.6 },
-                { t: "3.00 - 5.30", r: 0.8, dur: 2.5, multiPct: 0.6 }, { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "5.45 - 7.30", r: 1, dur: 1.75, multiPct: 0.6 }, { t: "7.30 - 8.00", r: 0, dur: 0.5, multiPct: 0.6 },
-                { t: "8.00 - 9.30", r: 1.35, dur: 1.5, multiPct: 0.6 }, { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "9.45 - 11.00", r: 1.4, dur: 1.25, multiPct: 0.6 }, { t: "11.00 - 12.00", r: 0.98, dur: 1, multiPct: 0.6 }
+                { t: "12.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6, pct: 11.730 },
+                { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "2.30 - 4.45", r: 1.2, dur: 2.25, multiPct: 0.6, pct: 9.600 },
+                { t: "4.45 - 5.15", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "5.15 - 7.00", r: 1.15, dur: 1.75, multiPct: 0.6, pct: 6.350 },
+                { t: "7.00 - 9.30", r: 0.7, dur: 2.5, multiPct: 0.6, pct: 8.280 },
+                { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "9.45 - 11.30", r: 0.73, dur: 1.75, multiPct: 0.6, pct: 9.760 },
+                { t: "11.30 - 12.00", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "12.00 - 1.30", r: 0.73, dur: 1.5, multiPct: 0.6, pct: 6.500 },
+                { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "1.45 - 3.00", r: 0.8, dur: 1.25, multiPct: 0.6, pct: 6.650 },
+                { t: "3.00 - 5.30", r: 0.8, dur: 2.5, multiPct: 0.6, pct: 10.460 },
+                { t: "5.30 - 5.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "5.45 - 7.30", r: 1, dur: 1.75, multiPct: 0.6, pct: 11.330 },
+                { t: "7.30 - 8.00", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
+                { t: "8.00 - 9.30", r: 1.35, dur: 1.5, multiPct: 0.6, pct: 8.300 },
+                { t: "9.30 - 9.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
+                { t: "9.45 - 11.00", r: 1.4, dur: 1.25, multiPct: 0.6, pct: 7.120 },
+                { t: "11.00 - 12.00", r: 0.98, dur: 1, multiPct: 0.6, pct: 3.920 }
             ]
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
-            lagrangeTemplates.forEach(template => {
-                const activeSlots = template.filter(row => row.r > 0).length;
-                const defaultPct = activeSlots > 0 ? (100 / activeSlots) : 0;
-                template.forEach(row => {
-                    row.pct = (row.r > 0) ? defaultPct : 0;
-                });
-            });
-
             document.getElementById('start-date').valueAsDate = new Date();
             generateDailyTable();
             renderLagrangeTables();
             initPdfMerger();
         });
-
+        
         function toggleDarkMode() {
             const html = document.documentElement;
             const modeIcon = document.getElementById('mode-icon');
