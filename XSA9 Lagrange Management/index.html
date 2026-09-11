@@ -172,24 +172,6 @@
         let tableCapacities = [0, 0, 0, 0];
         let tableDates = ["", "", "", ""]; 
 
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            const modeIcon = document.getElementById('mode-icon');
-            const modeText = document.getElementById('mode-text');
-            
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                html.classList.add('light');
-                modeIcon.innerText = '🌙';
-                modeText.innerText = 'Koyu Mod';
-            } else {
-                html.classList.remove('light');
-                html.classList.add('dark');
-                modeIcon.innerText = '☀️';
-                modeText.innerText = 'Aydınlık Mod';
-            }
-        }
-
         let lagrangeTemplates = [
             [
                 { t: "12.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6 }, { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6 }, { t: "1.45 - 3.30", r: 1.15, dur: 1.75, multiPct: 0.6 },
@@ -231,11 +213,37 @@
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
+            lagrangeTemplates.forEach(template => {
+                const activeSlots = template.filter(row => row.r > 0).length;
+                const defaultPct = activeSlots > 0 ? (100 / activeSlots) : 0;
+                template.forEach(row => {
+                    row.pct = (row.r > 0) ? defaultPct : 0;
+                });
+            });
+
             document.getElementById('start-date').valueAsDate = new Date();
             generateDailyTable();
             renderLagrangeTables();
             initPdfMerger();
         });
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const modeIcon = document.getElementById('mode-icon');
+            const modeText = document.getElementById('mode-text');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                modeIcon.innerText = '🌙';
+                modeText.innerText = 'Koyu Mod';
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                modeIcon.innerText = '☀️';
+                modeText.innerText = 'Aydınlık Mod';
+            }
+        }
 
         function generateDailyTable() {
             const days = parseInt(document.getElementById('day-count').value) || 21;
@@ -435,9 +443,10 @@
                                 <span class="${isNonBreak && !isBreak ? 'font-bold text-amber-800 dark:text-amber-300' : ''}">${row.t}</span>
                             </td>
                             <td class="px-2 py-1 text-center">
-                                <input type="number" step="0.001" value="${row.r}" 
-                                       oninput="updateRate(${index}, ${rIdx}, this.value)" 
-                                       class="w-16 text-center bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded py-0.5 text-xs font-semibold outline-none focus:border-blue-500">
+                                <input type="number" step="0.01" value="${isBreak ? 0 : (row.pct || 0).toFixed(2)}" 
+                                       oninput="updatePct(${index}, ${rIdx}, this.value)"
+                                       ${isBreak ? 'disabled' : ''}
+                                       class="w-16 text-center bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded py-0.5 text-xs font-semibold outline-none focus:border-blue-500 ${isBreak ? 'opacity-50' : ''}">
                             </td>
                             <td class="px-3 py-1.5 text-right text-indigo-600 dark:text-indigo-400 font-semibold" id="${tableId}-lagrange-${rIdx}">0</td>
                             <td class="px-3 py-1.5 text-right text-slate-700 dark:text-slate-300" id="${tableId}-multi-${rIdx}">0</td>
@@ -470,7 +479,6 @@
                                        placeholder="Örn: 180" 
                                        class="w-20 bg-slate-900 dark:bg-slate-950 border-none rounded text-white px-2 py-1 outline-none focus:ring-1 focus:ring-blue-400 text-right font-bold">
                                 
-                                <!-- PDF Dışa Aktarma Butonu -->
                                 <button onclick="exportTableToPDF(${index}, event)" class="bg-rose-500/90 hover:bg-rose-500 text-white p-1.5 rounded transition-colors flex items-center justify-center ml-1" title="Tabloyu PDF Olarak Kaydet">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 </button>
@@ -482,7 +490,7 @@
                                 <thead class="bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 uppercase">
                                     <tr>
                                         <th class="px-3 py-2">Saat Dilimi</th>
-                                        <th class="px-3 py-2 text-center">Rate</th>
+                                        <th class="px-3 py-2 text-center">Yüzde (%)</th>
                                         <th class="px-3 py-2 text-right">Lagrange Hr</th>
                                         <th class="px-3 py-2 text-right">Multi</th>
                                         <th class="px-3 py-2 text-right">Single</th>
@@ -510,7 +518,6 @@
             });
         }
 
-        // PDF İndirme ve Konum Seçme Fonksiyonu
         async function exportTableToPDF(tableIndex, event) {
             if (event) event.stopPropagation();
 
@@ -580,9 +587,9 @@
             }
         }
 
-        function updateRate(tableIndex, rowIndex, value) {
+        function updatePct(tableIndex, rowIndex, value) {
             const val = parseFloat(value);
-            lagrangeTemplates[tableIndex][rowIndex].r = isNaN(val) ? 0 : val;
+            lagrangeTemplates[tableIndex][rowIndex].pct = isNaN(val) ? 0 : val;
             calcLagrange(tableIndex, tableCapacities[tableIndex]);
         }
 
@@ -617,20 +624,23 @@
                 return;
             }
 
-            const baseHourly = capacity / effectiveHours;
-
             data.forEach((row, rIdx) => {
                 const isBreak = row.r === 0;
                 let lagrange = 0, multi = 0, single = 0, total = 0;
 
                 if (!isBreak) {
-                    lagrange = baseHourly * row.r;
+                    // Plan * % = Toplam değerine eşitleniyor
+                    total = capacity * ((row.pct || 0) / 100);
+
+                    // Lagrange HR = Toplam / Effective HR (Slot Süresi)
+                    lagrange = row.dur > 0 ? (total / row.dur) : 0;
+
                     const mRate = row.multiPct;
                     const sRate = 1 - mRate;
                     
                     multi = lagrange * mRate;
                     single = lagrange * sRate;
-                    total = lagrange * row.dur;
+                    
                     grandTotal += total;
                 }
 
@@ -650,7 +660,6 @@
             });
         }
 
-        // --- PDF Birleştirici Mantığı (pdf-lib) ---
         let pdfFiles = [];
 
         function initPdfMerger() {
