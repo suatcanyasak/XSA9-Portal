@@ -47,7 +47,6 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom scrollbars */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -75,13 +74,12 @@
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
                         FC Backlog & Hold Analiz Portalı
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-accent-400 border border-slate-700">v3.0 Backlog & AI Interval Insights</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-accent-400 border border-slate-700">v4.1 Projeksiyon & Kök Neden Modülü</span>
                     </h1>
                     <p class="text-xs text-slate-400">Amazon Fulfillment Center Operasyonel Salım & Değişim Analitiği</p>
                 </div>
             </div>
 
-            <!-- Header Quick Actions -->
             <div class="flex items-center gap-3">
                 <button onclick="downloadSampleTemplate()" class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-lg transition-all shadow-sm">
                     <i data-lucide="file-down" class="w-4 h-4 text-accent-400"></i>
@@ -101,18 +99,16 @@
 
         <!-- INITIAL EMPTY STATE CONTAINER -->
         <div id="emptyStateContainer" class="flex flex-col items-center justify-center min-h-[60vh] space-y-8 py-10">
-            
             <div class="text-center max-w-2xl space-y-3">
                 <div class="inline-flex items-center justify-center p-4 bg-accent-500/10 text-accent-400 rounded-2xl ring-1 ring-accent-500/20 mb-2">
                     <i data-lucide="bar-chart-horizontal" class="w-10 h-10"></i>
                 </div>
                 <h2 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Operasyonel Backlog Analizine Başlayın</h2>
                 <p class="text-sm text-slate-400 leading-relaxed">
-                    Fulfillment Center (FC) backlog, salım (release) ve Gambler Hold verilerinizi analiz etmek için CSV dosyanızı yükleyin. System 15 dakikalık periyotlardaki erime ve yığılmaları otomatik olarak hesaplar.
+                    Fulfillment Center (FC) backlog, salım (release) and Gambler Hold verilerinizi analiz etmek için CSV dosyanızı yükleyin. Sistem 15 dakikalık periyotlardaki erime, yığılma ve darboğaz yönelimlerini otomatik olarak hesaplar.
                 </p>
             </div>
 
-            <!-- Upload Dropzone -->
             <div class="w-full max-w-xl">
                 <div id="dropzone" 
                      class="border-2 border-dashed border-slate-700 hover:border-accent-500 bg-slate-900/60 hover:bg-slate-900/90 rounded-2xl p-8 text-center transition-all cursor-pointer relative group shadow-2xl"
@@ -142,7 +138,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- DASHBOARD CONTAINER -->
@@ -173,10 +168,10 @@
             </div>
 
             <!-- Executive KPI Cards Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="glass-card glass-card-hover p-4 rounded-xl flex flex-col justify-between transition-all">
                     <div class="flex items-center justify-between text-slate-400">
-                        <span class="text-xs font-medium">Başlangıç / Bitiş</span>
+                        <span class="text-xs font-medium">Başlangıç / Bitiş Workable</span>
                         <i data-lucide="layers" class="w-4 h-4 text-accent-400"></i>
                     </div>
                     <div class="mt-2">
@@ -185,7 +180,6 @@
                         </div>
                         <div id="kpiStartEndTimes" class="text-xs text-slate-400 mt-0.5">Saatler: -- ➔ --</div>
                     </div>
-                    <div class="mt-3 text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">Vardiya geneli workable stok</div>
                 </div>
 
                 <div class="glass-card glass-card-hover p-4 rounded-xl flex flex-col justify-between transition-all">
@@ -197,19 +191,6 @@
                         <div id="kpiNetDeltaVal" class="text-2xl font-bold font-mono text-white">0</div>
                         <div id="kpiNetDeltaPct" class="text-xs text-slate-400 mt-0.5">%0.00 Vardiya Boyunca</div>
                     </div>
-                    <div class="mt-3 text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">Başlangıç vs Bitiş farkı</div>
-                </div>
-
-                <div class="glass-card glass-card-hover p-4 rounded-xl flex flex-col justify-between transition-all">
-                    <div class="flex items-center justify-between text-slate-400">
-                        <span class="text-xs font-medium">En Yüksek Salım (Eritme)</span>
-                        <i data-lucide="zap" class="w-4 h-4 text-brand-400"></i>
-                    </div>
-                    <div class="mt-2">
-                        <div id="kpiMaxReleaseVal" class="text-2xl font-bold font-mono text-brand-400">0</div>
-                        <div id="kpiMaxReleaseTime" class="text-xs text-brand-400 mt-0.5">Aralık: --:--</div>
-                    </div>
-                    <div class="mt-3 text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">En yüksek periyodik düşüş</div>
                 </div>
 
                 <div class="glass-card glass-card-hover p-4 rounded-xl flex flex-col justify-between transition-all">
@@ -221,26 +202,67 @@
                         <div id="kpiTotalProcessed" class="text-2xl font-bold font-mono text-brand-400">0</div>
                         <div class="text-xs text-slate-400 mt-0.5">Shipments So Far Toplamı</div>
                     </div>
-                    <div class="mt-3 text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">Toplam gerçekleşen sevkiyat</div>
+                </div>
+                
+                <div class="glass-card glass-card-hover p-4 rounded-xl flex flex-col justify-between transition-all">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="text-xs font-medium">Darboğaz Segmentasyonu</span>
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400"></i>
+                    </div>
+                    <div class="mt-2">
+                        <div id="kpiBottleneckStatus" class="text-lg font-bold font-mono text-white tracking-tight">Dengeli</div>
+                        <div class="text-xs text-slate-400 mt-0.5">Son Durum Yönelimi</div>
+                    </div>
                 </div>
 
                 <div class="glass-card glass-card-hover p-4 rounded-xl flex flex-col justify-between transition-all">
                     <div class="flex items-center justify-between text-slate-400">
-                        <span class="text-xs font-medium">Çözülen Gambler Hold</span>
-                        <i data-lucide="shield-check" class="w-4 h-4 text-accent-400"></i>
+                        <span class="text-xs font-medium">00:00 Kapanış Pacing Projeksiyonu</span>
+                        <i data-lucide="timer" class="w-4 h-4 text-fuchsia-400"></i>
                     </div>
                     <div class="mt-2">
-                        <div id="kpiHoldResolved" class="text-2xl font-bold font-mono text-accent-400">0</div>
+                        <div id="kpiPacingStatus" class="text-lg font-bold font-mono text-fuchsia-400">Hesaplanıyor...</div>
+                        <div id="kpiPacingDetail" class="text-xs text-slate-400 mt-0.5">Mevcut hızla 00:00 toplam çıkış</div>
+                    </div>
+                </div>
+
+                <div class="glass-card glass-card-hover p-4 rounded-xl flex flex-col justify-between transition-all">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="text-xs font-medium">Ineligible Hold Üretim Hızı</span>
+                        <i data-lucide="shield-alert" class="w-4 h-4 text-orange-400"></i>
+                    </div>
+                    <div class="mt-2">
+                        <div id="kpiIneligRate" class="text-2xl font-bold font-mono text-orange-400">0</div>
+                        <div class="text-xs text-slate-400 mt-0.5">Birim / 15 Dk (Ortalama Artış)</div>
+                    </div>
+                </div>
+
+                <div class="glass-card glass-card-hover p-4 rounded-xl flex flex-col justify-between transition-all">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="text-xs font-medium">Çözülen Gambler Hold (Net)</span>
+                        <i data-lucide="shield-check" class="w-4 h-4 text-sky-400"></i>
+                    </div>
+                    <div class="mt-2">
+                        <div id="kpiHoldResolved" class="text-2xl font-bold font-mono text-sky-400">0</div>
                         <div id="kpiHoldResolvedPct" class="text-xs text-slate-400 mt-0.5">%0.00 Temizlendi</div>
                     </div>
-                    <div class="mt-3 text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">Blokeden çıkarılan birim</div>
+                </div>
+
+                <div class="glass-card glass-card-hover p-4 rounded-xl flex flex-col justify-between transition-all">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="text-xs font-medium">En Yüksek Salım (Eritme)</span>
+                        <i data-lucide="zap" class="w-4 h-4 text-emerald-400"></i>
+                    </div>
+                    <div class="mt-2">
+                        <div id="kpiMaxReleaseVal" class="text-2xl font-bold font-mono text-emerald-400">0</div>
+                        <div id="kpiMaxReleaseTime" class="text-xs text-slate-400 mt-0.5">Aralık: --:--</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Analytics Interactive Charts Grid -->
             <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                <!-- Chart 1: Main Workable Trend vs Inflow & Processed Output -->
                 <div class="lg:col-span-12 glass-card rounded-xl p-5 space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
                         <div>
@@ -256,7 +278,21 @@
                     </div>
                 </div>
 
-                <!-- Chart 2: Gambler Hold Composition + Percentage Chart Integration -->
+                <div class="lg:col-span-12 glass-card rounded-xl p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i data-lucide="flame" class="w-4 h-4 text-orange-500"></i>
+                                3 Günlük SLA (Days of Backlog) Risk Isı Haritası
+                            </h3>
+                            <p class="text-xs text-slate-400">Hedeflenen SLA yükü: &lt; 0.13 Yeşil (Güvenli) | 0.13 - 0.15 Sarı (Riskli) | &gt; 0.15 Kırmızı (Kritik Blokaj)</p>
+                        </div>
+                    </div>
+                    <div class="h-40 w-full">
+                        <canvas id="chartSLAHeatmap"></canvas>
+                    </div>
+                </div>
+
                 <div class="lg:col-span-12 glass-card rounded-xl p-5 space-y-6">
                     <div class="border-b border-slate-800 pb-3 flex items-center justify-between flex-wrap gap-2">
                         <div>
@@ -274,12 +310,10 @@
                         </div>
                     </div>
                     
-                    <!-- 1. Miktar Grafiği Canvas -->
                     <div class="h-80 w-full">
                         <canvas id="chartHoldsBreakdown"></canvas>
                     </div>
 
-                    <!-- 2. Yüzde (%) Dağılım Grafiği (Miktar Grafiğinin Hemen Altında) -->
                     <div class="pt-5 border-t border-slate-800 space-y-2">
                         <div class="flex items-center justify-between">
                             <h4 class="text-xs font-bold text-white flex items-center gap-2">
@@ -292,32 +326,8 @@
                             <canvas id="chartHoldsPercentage"></canvas>
                         </div>
                     </div>
-
-                    <!-- 3. Grafik Altı Mikro Table -->
-                    <div class="pt-4 border-t border-slate-800/80">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                                <i data-lucide="table-properties" class="w-3.5 h-3.5 text-accent-400"></i>
-                                Periyodik Hold Oranları & Workable Değişim Matrisi
-                            </h4>
-                        </div>
-                        <div class="rounded-lg border border-slate-800 bg-slate-950/60">
-                            <table class="w-full text-left border-collapse text-[11px] font-mono">
-                                <thead class="bg-slate-900/90 text-slate-400 border-b border-slate-800">
-                                    <tr>
-                                        <th class="py-2 px-3">Zaman Periyodu</th>
-                                        <th class="py-2 px-3 text-center text-sky-400">Eligible / Total (%)</th>
-                                        <th class="py-2 px-3 text-center text-purple-400">Ineligible / Total (%)</th>
-                                        <th class="py-2 px-3 text-right">Workable Değişim %</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="holdSubTableBody" class="divide-y divide-slate-800/40"></tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Chart 3: Periodic Backlog Delta -->
                 <div class="lg:col-span-12 glass-card rounded-xl p-5 space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                         <div>
@@ -354,12 +364,11 @@
                                 <th class="py-3 px-4 text-right">Başlangıç Workable</th>
                                 <th class="py-3 px-4 text-right">Bitiş Workable</th>
                                 <th class="py-3 px-4 text-center">Değişim (Delta)</th>
-                                <th class="py-3 px-4 text-right">Workable Değişim %</th>
                                 <th class="py-3 px-4 text-right">Giren İş (Inflow)</th>
-                                <th class="py-3 px-4 text-right">İşlenen İş (Shipments Δ)</th>
+                                <th class="py-3 px-4 text-right">İşlenen (Shipments)</th>
+                                <th class="py-3 px-4 text-center">Darboğaz Teşhisi</th>
                                 <th class="py-3 px-4 text-right">Total Holds</th>
-                                <th class="py-3 px-4 text-center">Elıgıble / Total %</th>
-                                <th class="py-3 px-4 text-center">Inelıgıble / Total %</th>
+                                <th class="py-3 px-4 text-center">Elig. / Inelig. (Adet & %)</th>
                                 <th class="py-3 px-4 text-right">Days of Backlog</th>
                             </tr>
                         </thead>
@@ -368,20 +377,42 @@
                 </div>
             </div>
 
-            <!-- EN ALT: HER 15 DAKİKALIK ARALIK İÇİN TEK TEK OTOMATİK BİLDİRİM VE ANALİZ PANELİ -->
+            <!-- OTOMATİK BİLDİRİM VE ANALİZ PANELİ -->
             <div id="perIntervalAnalysisPanel" class="glass-card rounded-xl p-5 border-l-4 border-l-accent-500 space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div class="flex items-center gap-2">
                         <i data-lucide="bot" class="w-5 h-5 text-accent-400 animate-pulse"></i>
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Periyot Bazlı Otomatik Backlog Değişim Bildirimleri</h3>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Periyot Bazlı Otomatik Cümle Analiz Motoru</h3>
                     </div>
-                    <span class="text-[11px] font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded-md border border-slate-700">Tüm Veriler Dahil Cümle Analizi Engine</span>
+                    <span class="text-[11px] font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded-md border border-slate-700">Darboğaz Tespiti Aktif</span>
                 </div>
-                <p class="text-xs text-slate-400">
-                    Aşağıdaki listede her 15 dakikalık periyot için giren iş (Inflow), çıkan sevkiyat (Shipments), Eligible ve Ineligible hold durumlarına göre backlog'un neden arttığı veya azaldığı raporlanmaktadır:
-                </p>
-                <div id="perIntervalAnalysisList" class="space-y-2.5 max-h-[450px] overflow-y-auto pr-2">
-                    <!-- JS ile her periyot için tek tek cümleler yazdırılacak -->
+                <div id="perIntervalAnalysisList" class="space-y-2.5 max-h-[450px] overflow-y-auto pr-2"></div>
+            </div>
+
+            <!-- DETAYLI HESAPLAMA METODOLOJİSİ / FORMÜLİZASYON ALANI -->
+            <div class="glass-card rounded-xl border border-slate-800 overflow-hidden">
+                <div class="p-4 bg-slate-900/90 border-b border-slate-800 cursor-pointer flex items-center justify-between" onclick="document.getElementById('formulaContent').classList.toggle('hidden')">
+                    <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-4 h-4 text-accent-400"></i>
+                        Metrik Hesaplama Metodolojisi ve Formülizasyon (Detaylı Açıklama)
+                    </h3>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <div id="formulaContent" class="p-5 text-xs text-slate-400 space-y-4 bg-slate-950">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <h4 class="font-bold text-slate-200 text-sm border-b border-slate-800 pb-1">1. Temel Delta ve İş Akış Formülleri</h4>
+                            <p><strong>Workable Delta (Stok Değişimi):</strong> <code class="bg-slate-800 px-1.5 py-0.5 rounded text-accent-300 font-mono">Bitiş Current Workable - Başlangıç Current Workable</code>. Negatif olması stok erimesini (başarıyı), pozitif olması yığılmayı gösterir.</p>
+                            <p><strong>Giren İş (Inflow):</strong> <code class="bg-slate-800 px-1.5 py-0.5 rounded text-accent-300 font-mono">Bitiş New Workable - Başlangıç New Workable</code>. Periyotta sisteme eklenen yeni iş hacmini verir.</p>
+                            <p><strong>İşlenen Hacim (Shipments Delta):</strong> <code class="bg-slate-800 px-1.5 py-0.5 rounded text-accent-300 font-mono">Bitiş Shipments So Far - Başlangıç Shipments So Far</code>. Periyot boyunca sevkiyatı tamamlanan net birim sayısıdır.</p>
+                        </div>
+                        <div class="space-y-3">
+                            <h4 class="font-bold text-slate-200 text-sm border-b border-slate-800 pb-1">2. Hold Analizi ve Kapanış Pacing Formülleri</h4>
+                            <p><strong>Eligible / Ineligible Dağılımı:</strong> <code class="bg-slate-800 px-1.5 py-0.5 rounded text-sky-300 font-mono">Eligible Adet / Ineligible Adet ve Yüzdeleri</code> doğrudan periyot sonu anlık snapshot verilerinden alınarak adetsel ve yüzde olarak yan yana gösterilir.</p>
+                            <p><strong>00:00 Kapanış Pacing Projeksiyonu:</strong> <code class="bg-slate-800 px-1.5 py-0.5 rounded text-fuchsia-300 font-mono">Mevcut Shipments So Far + (Kalan 15 Dk Periyot Sayısı × Son 3 Periyot Ortalama İşleme Hızı)</code> formülüyle gün sonunda toplam kaç shipments so far olacağı projelendirilir.</p>
+                            <p><strong>Ineligible Hold Üretim Hızı:</strong> Vardiya boyunca yalnızca Ineligible Hold miktarının arttığı periyotlardaki deltaların aritmetik ortalaması alınarak <code class="bg-slate-800 px-1.5 py-0.5 rounded text-orange-300 font-mono">Σ(Pozitif Deltalar) / N</code> şeklinde hesaplanır.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -393,7 +424,6 @@
         let parsedMetricsData = null;
         let chartInstances = {};
 
-        // YÜKSEK KONTRASTLI CANLI RENK DOLGU PLUGINI (#00E676 Canlı Neon Yeşil / #FF1744 Canlı Neon Kırmızı)
         const holdDifferenceFillPlugin = {
             id: 'holdDifferenceFill',
             beforeDatasetsDraw(chart) {
@@ -426,8 +456,6 @@
                     const avgEligible = (elVal1 + elVal2) / 2;
                     const avgIneligible = (inelVal1 + inelVal2) / 2;
 
-                    // Eligible >= Ineligible -> CANLI NEON YEŞİL (rgba(0, 230, 118, 0.45))
-                    // Eligible < Ineligible -> CANLI NEON KIRMIZI (rgba(255, 23, 68, 0.45))
                     let fillColor = avgEligible >= avgIneligible
                         ? 'rgba(0, 230, 118, 0.45)'
                         : 'rgba(255, 23, 68, 0.45)';
@@ -445,7 +473,7 @@
             }
         };
 
-        const sampleCSV = `FC - Metric,2026-09-20T00:00,2026-09-20T00:15,2026-09-20T00:30,2026-09-20T00:45,2026-09-20T01:00,2026-09-20T01:15,2026-09-20T01:30,2026-09-20T01:45,2026-09-20T02:00
+        const sampleCSV = `FC - Metric,2026-09-20T21:00,2026-09-20T21:15,2026-09-20T21:30,2026-09-20T21:45,2026-09-20T22:00,2026-09-20T22:15,2026-09-20T22:30,2026-09-20T22:45,2026-09-20T23:00
 XSA9 - Total Gambler Holds Units,717,725,732,738,740,680,620,580,568
 XSA9 - Current Workable w/ Total Gambler Holds Units,3373,3200,3050,2910,2802,2650,2500,2410,2349
 XSA9 - Shipments So Far,0,310,615,920,1233,1450,1680,1890,2051
@@ -562,6 +590,13 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                 const deltaEligible = end.eligible - start.eligible;
                 const deltaIneligible = end.ineligible - start.ineligible;
 
+                let intervalBottleneck = "Dengeli";
+                if (hourlyInflow > (estimatedProcessed * 1.5)) {
+                    intervalBottleneck = "Toplama (Picking)";
+                } else if (deltaIneligible > 0 && estimatedProcessed < hourlyInflow) {
+                    intervalBottleneck = "Aşağı Akış (Downstream)";
+                }
+
                 intervals.push({
                     intervalLabel: `${start.hourLabel} - ${end.hourLabel}`,
                     startWorkable: start.workable,
@@ -578,7 +613,8 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                     deltaIneligible: deltaIneligible,
                     eligiblePct: end.eligiblePct,
                     ineligiblePct: end.ineligiblePct,
-                    daysOfBacklog: end.daysOfBacklog
+                    daysOfBacklog: end.daysOfBacklog,
+                    bottleneck: intervalBottleneck
                 });
             }
 
@@ -596,7 +632,6 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
             renderKPIs();
             renderCharts();
             renderTable();
-            renderHoldSubTable();
             renderPerIntervalAnalysis();
             lucide.createIcons();
         }
@@ -631,7 +666,8 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
             netDeltaEl.className = `text-2xl font-bold font-mono ${netDelta <= 0 ? 'text-brand-400' : 'text-rose-400'}`;
             document.getElementById('kpiNetDeltaPct').textContent = `${netDeltaPct >= 0 ? '+' : ''}${netDeltaPct.toFixed(1)}% Toplam Değişim`;
 
-            document.getElementById('kpiTotalProcessed').textContent = (hours[hours.length - 1] ? hours[hours.length - 1].shipmentsSoFar : 0).toLocaleString('tr-TR');
+            const currentShipmentsSoFar = hours[hours.length - 1] ? hours[hours.length - 1].shipmentsSoFar : 0;
+            document.getElementById('kpiTotalProcessed').textContent = currentShipmentsSoFar.toLocaleString('tr-TR');
 
             const startHolds = hours[0].totalHolds;
             const endHolds = hours[hours.length - 1].totalHolds;
@@ -639,6 +675,46 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
             const resolvedPct = startHolds > 0 ? (resolvedHolds / startHolds) * 100 : 0;
             document.getElementById('kpiHoldResolved').textContent = resolvedHolds > 0 ? `-${resolvedHolds}` : `+${Math.abs(resolvedHolds)}`;
             document.getElementById('kpiHoldResolvedPct').textContent = `%${Math.abs(resolvedPct).toFixed(1)} ${resolvedHolds >= 0 ? 'Azalma' : 'Artış'}`;
+
+            let ineligSum = 0, ineligCount = 0;
+            intervals.forEach(inv => {
+                if (inv.deltaIneligible > 0) { ineligSum += inv.deltaIneligible; ineligCount++; }
+            });
+            const ineligRate = ineligCount > 0 ? Math.round(ineligSum / ineligCount) : 0;
+            document.getElementById('kpiIneligRate').textContent = `+${ineligRate}`;
+
+            const lastInv = intervals[intervals.length - 1];
+            const bottleneckEl = document.getElementById('kpiBottleneckStatus');
+            bottleneckEl.textContent = lastInv.bottleneck;
+            bottleneckEl.className = `text-lg font-bold font-mono tracking-tight ${lastInv.bottleneck === 'Dengeli' ? 'text-emerald-400' : (lastInv.bottleneck === 'Toplama (Picking)' ? 'text-amber-400' : 'text-rose-400')}`;
+
+            const lastTimestampStr = hours[hours.length - 1].rawTimestamp;
+            const lastDate = new Date(lastTimestampStr);
+            let targetMidnight = new Date(lastDate);
+            
+            if (targetMidnight.getHours() === 0 && targetMidnight.getMinutes() === 0) {
+                targetMidnight.setDate(targetMidnight.getDate() + 1);
+            } else {
+                targetMidnight.setHours(24, 0, 0, 0); 
+            }
+
+            const minsToMidnight = Math.max(0, (targetMidnight - lastDate) / 60000);
+            const intervalsToMidnight = minsToMidnight / 15;
+            
+            const last3 = intervals.slice(-3);
+            const avgProcessed = last3.length > 0 ? last3.reduce((sum, i) => sum + i.estimatedProcessed, 0) / last3.length : 0;
+            const projectedTotalShipments = currentShipmentsSoFar + (avgProcessed * intervalsToMidnight);
+
+            const pacingEl = document.getElementById('kpiPacingStatus');
+            if (minsToMidnight > 0 && avgProcessed > 0) {
+                pacingEl.textContent = `${Math.round(projectedTotalShipments).toLocaleString('tr-TR')} Birim`;
+                pacingEl.className = "text-lg font-bold font-mono text-fuchsia-400";
+                document.getElementById('kpiPacingDetail').textContent = `Mevcut hızla 00:00 toplam çıkış projeksiyonu`;
+            } else {
+                pacingEl.textContent = "Veri Yetersiz / Geçmiş";
+                pacingEl.className = "text-lg font-bold font-mono text-slate-400";
+                document.getElementById('kpiPacingDetail').textContent = "--";
+            }
         }
 
         function renderCharts() {
@@ -652,7 +728,6 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                 ticks: { color: '#94a3b8', autoSkip: false, maxRotation: 45, minRotation: 45, font: { size: 10 } }
             };
 
-            // 1. Main Workable Trend
             const ctx1 = document.getElementById('chartMainTrend').getContext('2d');
             chartInstances.mainTrend = new Chart(ctx1, {
                 type: 'line',
@@ -688,7 +763,36 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                 }
             });
 
-            // 2. Holds Breakdown (Miktar Grafiği - Belirgin Neon Renkler)
+            const ctxSLA = document.getElementById('chartSLAHeatmap').getContext('2d');
+            const slaValues = hours.map(h => h.daysOfBacklog);
+            const slaColors = slaValues.map(v => {
+                if(v > 0.15) return 'rgba(239, 68, 68, 0.8)';
+                if(v >= 0.13) return 'rgba(245, 158, 11, 0.8)';
+                return 'rgba(34, 197, 94, 0.8)';
+            });
+            chartInstances.slaHeatmap = new Chart(ctxSLA, {
+                type: 'bar',
+                data: {
+                    labels: hours.map(h => h.hourLabel),
+                    datasets: [{
+                        label: 'Days of Backlog',
+                        data: slaValues,
+                        backgroundColor: slaColors,
+                        borderWidth: 0,
+                        borderRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        x: { display: true, ticks: { color: '#94a3b8', maxRotation: 45, minRotation: 45, font: { size: 9 } } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+
             const ctx2 = document.getElementById('chartHoldsBreakdown').getContext('2d');
             chartInstances.holds = new Chart(ctx2, {
                 type: 'bar',
@@ -710,7 +814,7 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                             type: 'line',
                             label: 'Eligible Değişim Trendi',
                             data: hours.map(h => h.eligible),
-                            borderColor: '#00E676', // Canlı Neon Yeşil
+                            borderColor: '#00E676',
                             borderWidth: 3,
                             pointRadius: 3.5,
                             pointBackgroundColor: '#00E676',
@@ -732,7 +836,7 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                             type: 'line',
                             label: 'Ineligible Değişim Trendi',
                             data: hours.map(h => h.ineligible),
-                            borderColor: '#FF1744', // Canlı Neon Kırmızı
+                            borderColor: '#FF1744',
                             borderWidth: 3,
                             pointRadius: 3.5,
                             pointBackgroundColor: '#FF1744',
@@ -750,7 +854,6 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                 }
             });
 
-            // 2.B Miktar Grafiğinin Altındaki Yüzde (%) Grafiği
             const ctxPct = document.getElementById('chartHoldsPercentage').getContext('2d');
             chartInstances.holdsPct = new Chart(ctxPct, {
                 type: 'bar',
@@ -780,18 +883,11 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                     },
                     scales: {
                         x: xAxis15mConfig,
-                        y: {
-                            stacked: true,
-                            min: 0,
-                            max: 100,
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8', callback: (v) => `%${v}` }
-                        }
+                        y: { stacked: true, min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', callback: (v) => `%${v}` } }
                     }
                 }
             });
 
-            // 3. Backlog Delta Chart
             const ctx3 = document.getElementById('chartBacklogDelta').getContext('2d');
             chartInstances.delta = new Chart(ctx3, {
                 type: 'bar',
@@ -827,6 +923,17 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                 const badgeClass = isReduction ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border-rose-500/30';
                 const deltaPrefix = inv.deltaWorkable > 0 ? '+' : '';
 
+                let bottleneckBadge = '';
+                if(inv.bottleneck === 'Toplama (Picking)') {
+                    bottleneckBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30">Toplama (Giriş)</span>`;
+                } else if(inv.bottleneck === 'Aşağı Akış (Downstream)') {
+                    bottleneckBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-400 border border-rose-500/30">Aşağı Akış (Hold)</span>`;
+                } else {
+                    bottleneckBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-slate-700 text-slate-300">Dengeli</span>`;
+                }
+
+                const eligIneligDisplay = `<span class="text-sky-400 font-bold">${inv.eligible}</span> / <span class="text-purple-400 font-bold">${inv.ineligible}</span> <span class="text-slate-400 font-normal">(%${inv.eligiblePct.toFixed(0)} / %${inv.ineligiblePct.toFixed(0)})</span>`;
+
                 tr.innerHTML = `
                     <td class="py-3.5 px-4 font-semibold text-slate-200">${inv.intervalLabel}</td>
                     <td class="py-3.5 px-4 text-right text-slate-300">${inv.startWorkable.toLocaleString('tr-TR')}</td>
@@ -836,45 +943,17 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                             ${deltaPrefix}${inv.deltaWorkable.toLocaleString('tr-TR')}
                         </span>
                     </td>
-                    <td class="py-3.5 px-4 text-right font-bold ${isReduction ? 'text-emerald-400' : 'text-rose-400'}">
-                        ${deltaPrefix}${inv.pctWorkable.toFixed(2)}%
-                    </td>
                     <td class="py-3.5 px-4 text-right text-slate-300">+${inv.hourlyInflow.toLocaleString('tr-TR')}</td>
                     <td class="py-3.5 px-4 text-right text-emerald-400 font-bold">${inv.estimatedProcessed.toLocaleString('tr-TR')}</td>
+                    <td class="py-3.5 px-4 text-center">${bottleneckBadge}</td>
                     <td class="py-3.5 px-4 text-right text-slate-300">${inv.endHolds.toLocaleString('tr-TR')}</td>
-                    <td class="py-3.5 px-4 text-center font-semibold text-sky-400">%${inv.eligiblePct.toFixed(1)} (${inv.eligible})</td>
-                    <td class="py-3.5 px-4 text-center font-semibold text-purple-400">%${inv.ineligiblePct.toFixed(1)} (${inv.ineligible})</td>
-                    <td class="py-3.5 px-4 text-right text-slate-400">${inv.daysOfBacklog.toFixed(2)} gün</td>
+                    <td class="py-3.5 px-4 text-center text-[11px]">${eligIneligDisplay}</td>
+                    <td class="py-3.5 px-4 text-right text-slate-400">${inv.daysOfBacklog.toFixed(2)}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function renderHoldSubTable() {
-            const intervals = parsedMetricsData.intervals;
-            const tbody = document.getElementById('holdSubTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            intervals.forEach((inv) => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/40 transition-colors border-b border-slate-800/30';
-                const isReduction = inv.deltaWorkable <= 0;
-                const deltaPrefix = inv.deltaWorkable > 0 ? '+' : '';
-
-                tr.innerHTML = `
-                    <td class="py-2 px-3 font-medium text-slate-300">${inv.intervalLabel}</td>
-                    <td class="py-2 px-3 text-center font-semibold text-sky-400">%${inv.eligiblePct.toFixed(1)} (${inv.eligible})</td>
-                    <td class="py-2 px-3 text-center font-semibold text-purple-400">%${inv.ineligiblePct.toFixed(1)} (${inv.ineligible})</td>
-                    <td class="py-2 px-3 text-right font-bold ${isReduction ? 'text-emerald-400' : 'text-rose-400'}">
-                        ${deltaPrefix}${inv.pctWorkable.toFixed(2)}%
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // EN ALTTAKİ HER PERİYOT İÇİN TEK TEK CÜMLE BAZLI BİLDİRİM / ANALİZ MOTORU
         function renderPerIntervalAnalysis() {
             const intervals = parsedMetricsData.intervals;
             const container = document.getElementById('perIntervalAnalysisList');
@@ -900,39 +979,16 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                     borderClass = 'border-l-4 border-l-slate-600';
                 }
 
-                // Tüm verileri (Inflow, Outflow, Eligible, Ineligible) göz önünde bulunduran detaylı dinamik cümle oluşturucu
                 let sentences = [];
-
-                if (isIncrease) {
-                    if (inv.hourlyInflow > inv.estimatedProcessed) {
-                        const diff = inv.hourlyInflow - inv.estimatedProcessed;
-                        sentences.push(`Sisteme giren yeni iş miktarının (+${inv.hourlyInflow.toLocaleString('tr-TR')} birim), işlenen ve sevk edilen miktarını (+${inv.estimatedProcessed.toLocaleString('tr-TR')} birim) ${diff.toLocaleString('tr-TR')} birim aşması birikmeyi doğrudan tetikledi.`);
-                    } else {
-                        sentences.push(`Çıkan sevkiyat miktarına (+${inv.estimatedProcessed.toLocaleString('tr-TR')} birim) rağmen, sisteme giren yüksek iş yükü (+${inv.hourlyInflow.toLocaleString('tr-TR')} birim) nedeniyle stok yükseldi.`);
-                    }
-
-                    if (inv.deltaIneligible > 0) {
-                        sentences.push(`Ineligible hold birimlerindeki +${inv.deltaIneligible} artış (${inv.ineligible} birim seviyesine çıkması) operasyonel blokajı artırdı.`);
-                    }
-                    if (inv.deltaEligible > 0) {
-                        sentences.push(`Eligible hold hacminin +${inv.deltaEligible} birim yükselmesi de işlenebilir stoğu baskıladı.`);
-                    }
+                if (inv.bottleneck === 'Toplama (Picking)') {
+                    sentences.push(`Sisteme giren yeni iş miktarı (+${inv.hourlyInflow.toLocaleString('tr-TR')} birim), işlenen miktarı (+${inv.estimatedProcessed.toLocaleString('tr-TR')} birim) ciddi şekilde aştığı için ana yığılma kaynağı <strong>Toplama (Giriş)</strong> tarafında tespit edildi.`);
+                } else if (inv.bottleneck === 'Aşağı Akış (Downstream)') {
+                    sentences.push(`İşlenen sevkiyat yetersiz kalırken, Ineligible Hold miktarındaki +${inv.deltaIneligible} birimlik artış nedeniyle darboğaz <strong>Aşağı Akış / Packing (Hold)</strong> kaynaklı olarak tespit edildi.`);
                 } else if (isDecrease) {
-                    if (inv.estimatedProcessed > inv.hourlyInflow) {
-                        const diff = inv.estimatedProcessed - inv.hourlyInflow;
-                        sentences.push(`Operasyonel sevkiyat ve işleme hızının (+${inv.estimatedProcessed.toLocaleString('tr-TR')} birim), sisteme giren yeni iş miktarını (+${inv.hourlyInflow.toLocaleString('tr-TR')} birim) ${diff.toLocaleString('tr-TR')} birim geride bırakması sayesinde net %${Math.abs(inv.pctWorkable).toFixed(2)} erime sağlandı.`);
-                    } else {
-                        sentences.push(`Giren iş sınırlı kalırken, mevcut stoktan gerçekleştirilen +${inv.estimatedProcessed.toLocaleString('tr-TR')} birimlik çıkış backlog stoğunu düşürdü.`);
-                    }
-
-                    if (inv.deltaIneligible < 0) {
-                        sentences.push(`Ineligible hold birimlerinin ${Math.abs(inv.deltaIneligible)} birim çözülmesi/temizlenmesi erimeyi ivmelendirdi.`);
-                    }
-                    if (inv.deltaEligible < 0) {
-                        sentences.push(`Eligible hold hacminin ${Math.abs(inv.deltaEligible)} birim azalması stok erimesine katkı sağladı.`);
-                    }
+                    sentences.push(`Operasyonel sevkiyat hızı (+${inv.estimatedProcessed.toLocaleString('tr-TR')} birim), sisteme giren işi (+${inv.hourlyInflow.toLocaleString('tr-TR')} birim) geride bırakarak stok erimesini sağladı.`);
+                    if (inv.deltaIneligible < 0) sentences.push(`Ineligible hold birimlerinin ${Math.abs(inv.deltaIneligible)} birim çözülmesi erimeyi destekledi.`);
                 } else {
-                    sentences.push(`Sisteme giren iş (+${inv.hourlyInflow.toLocaleString('tr-TR')}) ile çıkan sevkiyat (+${inv.estimatedProcessed.toLocaleString('tr-TR')}) tam dengede kalarak net backlog seviyesini korudu.`);
+                    sentences.push(`Giren ve çıkan iş ile hold çözülmeleri dengede seyretti.`);
                 }
 
                 item.className = `p-3.5 rounded-lg bg-slate-900/90 border border-slate-800/80 text-xs leading-relaxed space-y-1.5 shadow-sm ${borderClass}`;
@@ -954,22 +1010,19 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                     </p>
                     <div class="flex items-center gap-4 pt-1 text-[10px] text-slate-400 font-mono border-t border-slate-800/60">
                         <span>📥 Giren İş: +${inv.hourlyInflow.toLocaleString('tr-TR')}</span>
-                        <span>📤 İşlenen/Sevkiyat: ${inv.estimatedProcessed.toLocaleString('tr-TR')}</span>
-                        <span>🔓 Eligible: %${inv.eligiblePct.toFixed(1)} (${inv.eligible})</span>
-                        <span>🔒 Ineligible: %${inv.ineligiblePct.toFixed(1)} (${inv.ineligible})</span>
+                        <span>📤 İşlenen: ${inv.estimatedProcessed.toLocaleString('tr-TR')}</span>
+                        <span>🔒 Ineligible Farkı: ${inv.deltaIneligible > 0 ? '+'+inv.deltaIneligible : inv.deltaIneligible}</span>
                     </div>
                 `;
-
                 container.appendChild(item);
             });
-
             lucide.createIcons();
         }
 
         function exportToCSV() {
             if (!parsedMetricsData) return;
             const intervals = parsedMetricsData.intervals;
-            let csvRows = [['Zaman Dilimi', 'Baslangic Workable', 'Bitis Workable', 'Delta Miktar', 'Workable Degisim %', 'Giren Is (Inflow)', 'Tahmini Islenen', 'Total Holds', 'Eligible Holds', 'Eligible/Total %', 'Ineligible Holds', 'Ineligible/Total %', 'Days of Backlog']];
+            let csvRows = [['Zaman Dilimi', 'Baslangic Workable', 'Bitis Workable', 'Delta Miktar', 'Giren Is (Inflow)', 'Tahmini Islenen', 'Darboğaz Tespiti', 'Total Holds', 'Eligible Holds', 'Ineligible Holds', 'Days of Backlog']];
 
             intervals.forEach(inv => {
                 csvRows.push([
@@ -977,14 +1030,12 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
                     inv.startWorkable,
                     inv.endWorkable,
                     inv.deltaWorkable,
-                    inv.pctWorkable.toFixed(2),
                     inv.hourlyInflow,
                     inv.estimatedProcessed,
+                    inv.bottleneck,
                     inv.endHolds,
                     inv.eligible,
-                    inv.eligiblePct.toFixed(1),
                     inv.ineligible,
-                    inv.ineligiblePct.toFixed(1),
                     inv.daysOfBacklog
                 ]);
             });
@@ -992,6 +1043,7 @@ XSA9 - New Workable incl. Total Gambler Holds Units,0,160,320,490,662,750,840,93
             const blob = new Blob([csvRows.map(e => e.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
+            link.setAttribute('header', url);
             link.setAttribute('href', url);
             link.setAttribute('download', `FC_Backlog_Analizi_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
