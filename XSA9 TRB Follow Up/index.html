@@ -135,16 +135,13 @@
     </div>
 
     <script>
-        // State
         let items = JSON.parse(localStorage.getItem('trb_autoItems')) || [];
         let currentShift = localStorage.getItem('trb_currentShift') || '15:00-23:00';
         let activeRange = null; 
         let currentPastedImg = null;
 
-        // Başlangıç Ayarları
         function init() {
             applyTheme();
-            
             const dateInput = document.getElementById('shiftDate');
             const savedDate = localStorage.getItem('trb_shiftDate');
             if (savedDate) {
@@ -152,16 +149,13 @@
             } else {
                 dateInput.valueAsDate = new Date();
             }
-            
             dateInput.addEventListener('change', (e) => {
                 localStorage.setItem('trb_shiftDate', e.target.value);
             });
-
             document.getElementById('shiftSelect').value = currentShift;
             render();
         }
 
-        // Tema Yönetimi
         function applyTheme() {
             const theme = localStorage.getItem('trb_theme') || 'light';
             if (theme === 'dark') {
@@ -247,7 +241,6 @@
 
         window.addEventListener('paste', (e) => {
             if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') return;
-
             const clipboardItems = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (let index in clipboardItems) {
                 const item = clipboardItems[index];
@@ -257,10 +250,8 @@
                     reader.onload = async (event) => {
                         currentPastedImg = await resizeImage(event.target.result);
                         document.getElementById('modalPreview').src = currentPastedImg;
-                        
                         const now = new Date();
                         document.getElementById('modalTime').value = now.toTimeString().substring(0,5);
-                        
                         document.getElementById('pasteModal').classList.remove('hidden');
                         setTimeout(() => {
                             const timeInput = document.getElementById('modalTime');
@@ -285,7 +276,6 @@
         function savePastedItem() {
             const timeVal = document.getElementById('modalTime').value;
             if(!timeVal) { alert("Lütfen saat formatını girin (Örn: 16:07)"); return; }
-            
             const range = calculateRange(timeVal);
             items.push({
                 id: Date.now(),
@@ -295,7 +285,6 @@
                 note: '',
                 status: 'info'
             });
-            
             saveData();
             closeModal();
             activeRange = range; 
@@ -336,25 +325,20 @@
 
             const grouped = {};
             standardIntervals.forEach(r => grouped[r] = []);
-
             items.forEach(item => {
                 if(!grouped[item.range]) grouped[item.range] = [];
                 grouped[item.range].push(item);
             });
 
             const allRanges = Object.keys(grouped).sort((a, b) => timeToMinutes(a.substring(0,5)) - timeToMinutes(b.substring(0,5)));
-
             if (!activeRange && allRanges.length > 0) activeRange = allRanges[0];
 
             hourList.innerHTML = '';
-            
             allRanges.forEach(range => {
                 const rangeItems = grouped[range];
                 const isActive = range === activeRange;
-                
                 if(rangeItems.length > 0 || standardIntervals.includes(range)) {
                     const div = document.createElement('div');
-                    
                     const activeClasses = 'bg-blue-50 border-blue-500 shadow-md shadow-blue-100 dark:shadow-none dark:bg-blue-900/60 dark:border-blue-400';
                     const inactiveClasses = 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:border-gray-500';
                     const textClasses = isActive ? 'text-blue-700 dark:text-blue-200 font-bold' : 'text-gray-700 dark:text-gray-300 font-medium';
@@ -362,7 +346,6 @@
 
                     div.className = `p-3 rounded-xl cursor-pointer flex justify-between items-center border transition-all duration-200 ${isActive ? activeClasses : inactiveClasses}`;
                     div.onclick = () => setActive(range);
-                    
                     div.innerHTML = `
                         <div class="flex items-center ${textClasses}">
                             <i class="fas ${isActive ? 'fa-folder-open text-blue-500' : 'fa-folder text-gray-400'} mr-3 text-sm"></i>
@@ -381,15 +364,13 @@
                 activeContent.classList.remove('hidden');
                 activeHourTitle.textContent = activeRange;
                 itemCountLabel.textContent = `${grouped[activeRange].length} İşlem Kaydı`;
-                
                 itemsGrid.innerHTML = '';
                 
                 grouped[activeRange].forEach(item => {
                     const card = document.createElement('div');
-                    card.className = "bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden shadow hover:shadow-lg transition-shadow";
-                    
+                    card.className = "bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden shadow hover:shadow-lg transition-shadow h-[450px]";
                     card.innerHTML = `
-                        <div class="bg-gray-50 dark:bg-gray-800 p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <div class="flex-none bg-gray-50 dark:bg-gray-800 p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                             <div class="flex items-center gap-3">
                                 <span class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-300 font-mono text-sm px-2 py-1 rounded shadow-sm">
                                     <i class="far fa-clock mr-1"></i> ${item.time}
@@ -398,16 +379,16 @@
                                     <option value="info" ${item.status === 'info' ? 'selected' : ''}>🔵 BİLGİ</option>
                                     <option value="warning" ${item.status === 'warning' ? 'selected' : ''}>🟡 UYARI</option>
                                     <option value="critical" ${item.status === 'critical' ? 'selected' : ''}>🔴 KRİTİK</option>
-                                    <option value="resolved" ${item.status === 'resolved' ? 'selected' : ''}>🟢 ÇÖZÜLDÜ</option>
+                                    <option value="action" ${item.status === 'action' || item.status === 'resolved' ? 'selected' : ''}>🛠️ AKSİYON</option>
                                 </select>
                             </div>
                             <button onclick="deleteItem(${item.id})" class="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30 p-1.5 rounded transition"><i class="fas fa-trash"></i></button>
                         </div>
-                        <div class="p-3 bg-gray-100 dark:bg-gray-900 flex justify-center">
-                            <img src="${item.src}" class="max-h-48 object-contain rounded border border-gray-300 dark:border-gray-700 shadow-sm" alt="Ekran Görüntüsü">
+                        <div class="flex-1 min-h-0 overflow-auto p-3 bg-gray-100 dark:bg-gray-900 flex justify-center items-start">
+                            <img src="${item.src}" class="max-w-full h-auto object-contain rounded border border-gray-300 dark:border-gray-700 shadow-sm" alt="Ekran Görüntüsü">
                         </div>
-                        <div class="p-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                            <textarea onchange="updateItem(${item.id}, 'note', this.value)" placeholder="Bu işlem için notlarınızı ekleyin..." class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm h-24 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none text-gray-800 dark:text-gray-200 transition-colors">${item.note}</textarea>
+                        <div class="flex-none p-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                            <textarea onchange="updateItem(${item.id}, 'note', this.value)" placeholder="Bu işlem için notlarınızı ekleyin..." class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm h-24 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none text-gray-800 dark:gray-200 transition-colors">${item.note}</textarea>
                         </div>
                     `;
                     itemsGrid.appendChild(card);
@@ -430,40 +411,30 @@
             }
         }
 
-        // Görseli mümkün olduğunca yüksek çözünürlükte sakla.
-        // Excel'de daha küçük gösterildiği için metinler daha net kalır.
         function resizeImage(base64Str, maxWidth = 1920) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
-
                 img.onload = () => {
                     let width = img.naturalWidth || img.width;
                     let height = img.naturalHeight || img.height;
-
                     if (!width || !height) {
                         reject(new Error("Görüntü boyutları okunamadı."));
                         return;
                     }
-
                     if (width > maxWidth) {
                         const ratio = maxWidth / width;
                         width = Math.round(width * ratio);
                         height = Math.round(height * ratio);
                     }
-
                     const canvas = document.createElement('canvas');
                     canvas.width = width;
                     canvas.height = height;
-
                     const ctx = canvas.getContext('2d', { alpha: false });
                     ctx.imageSmoothingEnabled = true;
                     ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, width, height);
-
-                    // JPEG 0.95: yüksek kalite + makul dosya boyutu.
                     resolve(canvas.toDataURL('image/jpeg', 0.95));
                 };
-
                 img.onerror = () => reject(new Error("Görüntü işlenemedi."));
                 img.src = base64Str;
             });
@@ -472,48 +443,37 @@
         function getImageDimensions(base64Str) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
-
                 img.onload = () => resolve({
                     width: img.naturalWidth || img.width,
                     height: img.naturalHeight || img.height
                 });
-
                 img.onerror = () => reject(new Error("Görüntü boyutları okunamadı."));
                 img.src = base64Str;
             });
         }
 
-        // Excel'in standart sütun genişliğini yaklaşık gerçek piksel genişliğine çevirir.
-        function excelColumnWidthToPixels(width) {
-            if (width <= 0) return 0;
-            return Math.floor(((256 * width + Math.floor(128 / 7)) / 256) * 7);
+        function createStatusBadgeImage(statusKey) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 240;
+            canvas.height = 70;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const config = {
+                'info': { emoji: '🔵', text: 'BİLGİ' },
+                'warning': { emoji: '🟡', text: 'UYARI' },
+                'critical': { emoji: '🔴', text: 'KRİTİK' },
+                'action': { emoji: '🛠️', text: 'AKSİYON' },
+                'resolved': { emoji: '🛠️', text: 'AKSİYON' }
+            };
+            const item = config[statusKey] || config['info'];
+            ctx.font = 'bold 32px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${item.emoji}  ${item.text}`, canvas.width / 2, canvas.height / 2);
+            return canvas.toDataURL('image/png');
         }
 
-        // İstenen piksel genişliğine en yakın Excel sütun genişliğini bul.
-        function pixelsToExcelColumnWidth(targetPx) {
-            let bestWidth = 8.43;
-            let bestDiff = Infinity;
-
-            // ExcelJS/Excel'de pratik kullanım için 0.01 hassasiyet yeterli.
-            for (let width = 8.43; width <= 100; width += 0.01) {
-                const px = excelColumnWidthToPixels(width);
-                const diff = Math.abs(px - targetPx);
-
-                if (diff < bestDiff) {
-                    bestDiff = diff;
-                    bestWidth = Number(width.toFixed(2));
-                }
-
-                if (diff === 0) break;
-            }
-
-            return bestWidth;
-        }
-
-        // 🚀 AKILLI EXCEL DIŞA AKTARIM
-        // Görseller normal okunabilir ölçüde tutulur; tüm satırlarda B hücresi
-        // aynı genişliktedir. Görseller yatayda hücreyi tamamen doldurur,
-        // dikeyde ise oran korunarak hücre içine ortalanır.
+        // MÜKEMMEL DİKEY KART FORMATI (DİNAMİK YÜKSEKLİK İLE ÇAKIŞMA ÖNLENDİ)
         async function exportToExcel() {
             if(items.length === 0) {
                 alert("Dışa aktarılacak veri bulunamadı.");
@@ -533,10 +493,9 @@
                 (a, b) => timeToMinutes(a.substring(0,5)) - timeToMinutes(b.substring(0,5))
             );
 
-            // Ekran görüntülerinin Excel'de devasa görünmesini engelle.
-            // 600 px, normal okunabilirlik ile dosya düzeni arasında dengeli bir ölçüdür.
-            const MAX_CELL_WIDTH_PX = 600;
-            const MAX_ROW_HEIGHT_PX = 420;
+            const TARGET_IMG_WIDTH_PX = 600; // Geniş ve net ekran görüntüsü genişliği
+            const BADGE_WIDTH_PX = 110;
+            const BADGE_HEIGHT_PX = 32;
 
             for (const range of allRanges) {
                 const rangeItems = grouped[range];
@@ -549,180 +508,137 @@
 
                 const worksheet = workbook.addWorksheet(safeSheetName);
 
-                // ---------------------------------------------------------
-                // 1) TÜM GÖRSELLERİN GERÇEK BOYUTLARINI OKU
-                // ---------------------------------------------------------
+                // Sabit Sütun Genişlikleri (Dikey Blok Düzeni)
+                worksheet.columns = [
+                    { width: 18 }, // A Sütunu: Etiket / Başlık
+                    { width: 85 }  // B Sütunu: Değer / İçerik / Görsel / Açıklama
+                ];
+
+                let currentRow = 1;
+
                 const measuredItems = await Promise.all(
                     rangeItems.map(async (item) => {
                         const dimensions = await getImageDimensions(item.src);
                         return {
                             ...item,
                             imageWidth: dimensions.width,
-                            imageHeight: dimensions.height,
+                    imageHeight: dimensions.height,
                             aspect: dimensions.height / dimensions.width
                         };
                     })
                 );
 
-                // En büyük kaynak görseli 600 px'i geçmeyecek şekilde küçült.
-                // Daha küçük kaynakları gereksiz yere büyütme.
-                const maxSourceWidth = Math.max(...measuredItems.map(item => item.imageWidth));
-                let targetWidthPx = Math.min(MAX_CELL_WIDTH_PX, maxSourceWidth);
+                for (let i = 0; i < measuredItems.length; i++) {
+                    const item = measuredItems[i];
 
-                // Çok küçük kaynaklarda bile aşırı dar sütun oluşmasını önle.
-                // Ancak kaynak daha küçükse kalite kaybı yaratacak şekilde büyütülmez.
-                const MIN_LAYOUT_WIDTH_PX = 420;
-                if (maxSourceWidth >= MIN_LAYOUT_WIDTH_PX) {
-                    targetWidthPx = Math.max(targetWidthPx, MIN_LAYOUT_WIDTH_PX);
-                }
+                    // Her kart arasında boşluk bırak (ilk kart hariç)
+                    if (i > 0) {
+                        currentRow++;
+                        const emptyRow = worksheet.getRow(currentRow);
+                        emptyRow.height = 15;
+                        currentRow++;
+                    } else {
+                        currentRow = 1;
+                    }
 
-                // Sütunun gerçek Excel piksel karşılığını tespit et.
-                const bColumnWidth = pixelsToExcelColumnWidth(targetWidthPx);
-                const actualCellWidthPx = excelColumnWidthToPixels(bColumnWidth);
+                    const cardStartRow = currentRow;
 
-                // Her görsel yatayda hücre genişliğini tamamen doldurur.
-                // Farklı oranlarda olanlar dikeyde ortalanır.
-                const displayHeights = measuredItems.map(item => actualCellWidthPx * item.aspect);
-                let commonCellHeightPx = Math.max(...displayHeights);
+                    // 1. Satır: SAAT
+                    const r1 = worksheet.getRow(currentRow);
+                    r1.height = 25;
+                    r1.getCell(1).value = "İŞLEM SAATİ";
+                    r1.getCell(2).value = item.time;
+                    
+                    r1.getCell(1).font = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+                    r1.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1C2833' } };
+                    r1.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-                // Aşırı uzun ekran görüntülerinde Excel'in satır yüksekliği sınırına yaklaşma.
-                if (commonCellHeightPx > MAX_ROW_HEIGHT_PX) {
-                    const heightScale = MAX_ROW_HEIGHT_PX / commonCellHeightPx;
-                    targetWidthPx = Math.floor(actualCellWidthPx * heightScale);
+                    r1.getCell(2).font = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FF1F618D' } };
+                    r1.getCell(2).alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+                    currentRow++;
 
-                    const newBWidth = pixelsToExcelColumnWidth(targetWidthPx);
-                    worksheet.getColumn(2).width = newBWidth;
-                    const correctedWidthPx = excelColumnWidthToPixels(newBWidth);
-                    commonCellHeightPx = Math.max(
-                        ...measuredItems.map(item => correctedWidthPx * item.aspect)
-                    );
-                } else {
-                    worksheet.getColumn(2).width = bColumnWidth;
-                }
+                    // 2. Satır: DURUM (Rozet)
+                    const r2 = worksheet.getRow(currentRow);
+                    r2.height = 35;
+                    r2.getCell(1).value = "DURUM";
+                    r2.getCell(2).value = ""; // Görsel yerleşecek
 
-                // ---------------------------------------------------------
-                // 2) DİĞER SÜTUNLAR
-                // ---------------------------------------------------------
-                worksheet.columns = [
-                    { width: 12 }, // A: Saat
-                    { width: worksheet.getColumn(2).width }, // B: Görüntü
-                    { width: 16 }, // C: Durum
-                    { width: 50 }  // D: Notlar / Açıklama
-                ];
+                    r2.getCell(1).font = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+                    r2.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1C2833' } };
+                    r2.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-                // Başlık Satırı
-                const headerRow = worksheet.getRow(1);
-                headerRow.height = 30;
-                const headers = ['Saat', 'Görüntü', 'Durum', 'Notlar / Açıklama'];
-
-                headers.forEach((headerText, index) => {
-                    const cell = headerRow.getCell(index + 1);
-                    cell.value = headerText;
-                    cell.font = {
-                        name: 'Calibri', bold: true,
-                        color: { argb: 'FFFFFFFF' }, size: 12
-                    };
-                    cell.fill = {
-                        type: 'pattern', pattern: 'solid',
-                        fgColor: { argb: 'FF1C2833' }
-                    };
-                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
-                    cell.border = {
-                        top: {style:'thin', color: {argb:'FFD1D5DB'}},
-                        left: {style:'thin', color: {argb:'FFD1D5DB'}},
-                        bottom: {style:'thin', color: {argb:'FFD1D5DB'}},
-                        right: {style:'thin', color: {argb:'FFD1D5DB'}}
-                    };
-                });
-
-                let currentRow = 2;
-
-                for (const item of measuredItems) {
-                    const row = worksheet.getRow(currentRow);
-                    row.height = commonCellHeightPx * 0.75;
-
-                    // A: Saat
-                    const timeCell = row.getCell(1);
-                    timeCell.value = item.time;
-                    timeCell.font = {
-                        name: 'Calibri', bold: true, size: 11,
-                        color: { argb: 'FF000000' }
-                    };
-                    timeCell.alignment = { vertical: 'middle', horizontal: 'center' };
-
-                    // C: Durum
-                    const statusCell = row.getCell(3);
-                    const statusMap = {
-                        'info': '🔵 Bilgi',
-                        'warning': '🟡 Uyarı',
-                        'critical': '🔴 Kritik',
-                        'resolved': '🟢 Çözüldü'
-                    };
-                    statusCell.value = statusMap[item.status] || '🔵 Bilgi';
-                    statusCell.alignment = { vertical: 'middle', horizontal: 'center' };
-
-                    // D: Notlar / Açıklama
-                    const noteCell = row.getCell(4);
-                    noteCell.value = item.note || '';
-                    noteCell.alignment = {
-                        vertical: 'top', horizontal: 'left',
-                        wrapText: true, indent: 1
-                    };
-
-                    // Hücre kenarlıkları ve fontları
-                    [1, 2, 3, 4].forEach(colIndex => {
-                        const cell = row.getCell(colIndex);
-
-                        if(colIndex !== 1) {
-                            cell.font = {
-                                name: 'Calibri', size: 11,
-                                color: { argb: 'FF000000' }
-                            };
-                        }
-
-                        cell.border = {
-                            top: {style:'thin', color: {argb:'FFD1D5DB'}},
-                            left: {style:'thin', color: {argb:'FFD1D5DB'}},
-                            bottom: {style:'thin', color: {argb:'FFD1D5DB'}},
-                            right: {style:'thin', color: {argb:'FFD1D5DB'}}
-                        };
-                    });
-
-                    // -----------------------------------------------------
-                    // 3) GÖRSELİ HÜCREYE SIĞDIR
-                    // Yatayda boşluk bırakma: genişlik = hücrenin gerçek px'i.
-                    // Dikeyde oranı koru ve ortala.
-                    // -----------------------------------------------------
-                    const displayWidth = excelColumnWidthToPixels(worksheet.getColumn(2).width);
-                    const displayHeight = displayWidth * item.aspect;
-                    const offsetY = Math.max(0, (commonCellHeightPx - displayHeight) / 2);
-
-                    const imageId = workbook.addImage({
-                        base64: item.src,
-                        extension: 'jpeg'
-                    });
-
-                    worksheet.addImage(imageId, {
-                        tl: {
-                            col: 1,
-                            row: (currentRow - 1) + (offsetY / commonCellHeightPx)
-                        },
-                        ext: {
-                            width: displayWidth,
-                            height: displayHeight
-                        },
+                    const badgeDataUrl = createStatusBadgeImage(item.status);
+                    const badgeImageId = workbook.addImage({ base64: badgeDataUrl, extension: 'png' });
+                    
+                    worksheet.addImage(badgeImageId, {
+                        tl: { col: 1, row: currentRow - 1, nativeCellOffset: { x: 15 * 9525, y: 3 * 9525 } },
+                        ext: { width: BADGE_WIDTH_PX, height: BADGE_HEIGHT_PX },
                         editAs: 'oneCell'
                     });
+                    currentRow++;
+
+                    // 3. Satır: EKRAN GÖRÜNTÜSÜ (Dinamik Yükseklik Hesaplama)
+                    const targetHeightPx = TARGET_IMG_WIDTH_PX * item.aspect;
+                    // Excel satır yüksekliği puan (pt) cinsindendir. 1 piksel yaklaşık 0.75 pt'dir.
+                    const imgRowHeightPt = Math.max(40, targetHeightPx * 0.95);
+
+                    const r3 = worksheet.getRow(currentRow);
+                    r3.height = imgRowHeightPt; // Dinamik olarak görsel boyutuyla birebir eşleştirildi
+                    r3.getCell(1).value = "GÖRÜNTÜ";
+                    r3.getCell(2).value = ""; // Görsel yerleşecek
+
+                    r3.getCell(1).font = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+                    r3.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1C2833' } };
+                    r3.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                    const imageId = workbook.addImage({ base64: item.src, extension: 'jpeg' });
+                    worksheet.addImage(imageId, {
+                        tl: { col: 1, row: currentRow - 1, nativeCellOffset: { x: 10 * 9525, y: 5 * 9525 } },
+                        ext: { width: TARGET_IMG_WIDTH_PX, height: targetHeightPx },
+                        editAs: 'oneCell'
+                    });
+                    currentRow++;
+
+                    // 4. Satır: NOTLAR / AÇIKLAMA (Artık asla üst üste binmeyecek)
+                    const r4 = worksheet.getRow(currentRow);
+                    r4.height = 65;
+                    r4.getCell(1).value = "NOTLAR / AÇIKLAMA";
+                    r4.getCell(2).value = item.note || '';
+
+                    r4.getCell(1).font = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+                    r4.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1C2833' } };
+                    r4.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+                    r4.getCell(2).font = { name: 'Calibri', size: 11, color: { argb: 'FF000000' } };
+                    r4.getCell(2).alignment = { vertical: 'top', horizontal: 'left', wrapText: true, indent: 1 };
+                    
+                    // Kartın tüm hücrelerine çerçeve ekle (Dış çerçeve kalın siyah)
+                    for (let r = cardStartRow; r <= currentRow; r++) {
+                        for (let c = 1; c <= 2; c++) {
+                            let cellBorder = {
+                                top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                                left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                                bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                                right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                            };
+
+                            // Sadece alanın en dış köşelerine kalın (thick) siyah çerçeve uygula
+                            if (r === cardStartRow) cellBorder.top = { style: 'thick', color: { argb: 'FF000000' } };
+                            if (r === currentRow) cellBorder.bottom = { style: 'thick', color: { argb: 'FF000000' } };
+                            if (c === 1) cellBorder.left = { style: 'thick', color: { argb: 'FF000000' } };
+                            if (c === 2) cellBorder.right = { style: 'thick', color: { argb: 'FF000000' } };
+
+                            worksheet.getRow(r).getCell(c).border = cellBorder;
+                        }
+                    }
 
                     currentRow++;
                 }
             }
 
             const buffer = await workbook.xlsx.writeBuffer();
-
             const dateInput = document.getElementById('shiftDate').value;
             let dateStr = "";
-
             if (dateInput) {
                 const d = new Date(dateInput);
                 dateStr = `${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`;
@@ -730,7 +646,6 @@
                 const d = new Date();
                 dateStr = `${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`;
             }
-
             const [sHour, eHour] = currentShift.split('-');
             const shiftName = `${sHour.split(':')[0]}-${eHour.split(':')[0]}`;
 
