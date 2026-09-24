@@ -15,8 +15,6 @@
     <!-- ExcelJS & FileSaver -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <!-- html2pdf -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -67,11 +65,6 @@
             
             <button onclick="clearAll()" class="bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 px-4 py-2 rounded transition text-sm font-medium border border-red-200 dark:border-red-800/50">
                 <i class="fas fa-trash-alt mr-1"></i> Temizle
-            </button>
-
-            <!-- PDF Çıktısı -->
-            <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded shadow-md transition text-sm font-bold flex items-center">
-                <i class="fas fa-file-pdf mr-2"></i> PDF
             </button>
             
             <!-- Excel Çıktısı -->
@@ -297,9 +290,9 @@
             const year = parts[0];
             const month = parseInt(parts[1], 10);
             const day = parseInt(parts[2], 10);
-            const formattedDate = `${day}-${month}-${year}`; // e.g. 23-9-2026
+            const formattedDate = `${day}-${month}-${year}`;
             
-            const formattedShift = (state.currentShift || '').replace(/:00/g, ''); // "15:00-23:00" -> "15-23"
+            const formattedShift = (state.currentShift || '').replace(/:00/g, '');
             
             return `TRB Follow Up (${formattedDate}) - ${formattedShift}.${extension}`;
         }
@@ -324,10 +317,8 @@
                 mainColor = '#f59e0b'; lightColor = '#fde68a'; darkColor = '#b45309'; text = 'UYARI';
             }
 
-            // Arka plan şeffaf bırakılır
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 3D Parlak Küre Çizimi (Bilye efekti)
             const cx = 22, cy = 20, r = 11;
             const grad = ctx.createRadialGradient(cx - 3, cy - 4, 1, cx, cy, r);
             grad.addColorStop(0, '#ffffff');
@@ -340,7 +331,6 @@
             ctx.fillStyle = grad;
             ctx.fill();
 
-            // Metin Çizimi
             ctx.fillStyle = '#000000';
             ctx.font = 'bold 16px Calibri, Arial, sans-serif';
             ctx.textBaseline = 'middle';
@@ -635,7 +625,7 @@
             const statusVal = document.getElementById('modalStatus').value;
             if(!timeVal) { alert("Lütfen saati girin."); return; }
             
-            const finalImage = canvas.toDataURL('image/jpeg', 0.95);
+            const finalImage = canvas.toDataURL('image/png', 1.0);
             const range = calculateRange(timeVal);
             
             const newItem = {
@@ -912,7 +902,6 @@
             });
 
             const allRanges = Object.keys(grouped).sort((a,b) => timeToMinutes(a.substring(0,5)) - timeToMinutes(b.substring(0,5)));
-            const TARGET_IMG_WIDTH_PX = 600;
 
             for (const range of allRanges) {
                 const rangeItems = grouped[range];
@@ -920,7 +909,7 @@
                 const safeSheetName = range.replace(/:/g, '.').replace(/[/\\?*\[\]]/g, '-');
                 const worksheet = workbook.addWorksheet(safeSheetName);
 
-                worksheet.columns = [{ width: 18 }, { width: 85 }];
+                worksheet.columns = [{ width: 18 }, { width: 115 }];
                 let currentRow = 1;
 
                 for (let i = 0; i < rangeItems.length; i++) {
@@ -936,15 +925,14 @@
                     formatCell(r1.getCell(1), true, 'FF1C2833', 'center');
                     formatCell(r1.getCell(2), true, 'FF000000', 'left', false);
 
-                    // Row 2: Durum (Görsel Rozet olarak eklendi)
+                    // Row 2: Durum
                     const r2 = worksheet.getRow(currentRow++);
                     r2.height = 32;
                     r2.getCell(1).value = "DURUM";
-                    r2.getCell(2).value = ""; // Metin boş, üzerine rozet görseli koyulacak
+                    r2.getCell(2).value = "";
                     formatCell(r2.getCell(1), true, 'FF1C2833', 'center');
                     formatCell(r2.getCell(2), false, 'FFFFFFFF', 'left', false);
 
-                    // Renkli Durum Rozet Görselinin Oluşturulup Hücreye Eklenmesi
                     const badgeBase64 = generateStatusBadgeBase64(item.status);
                     const badgeImgId = workbook.addImage({ base64: badgeBase64, extension: 'png' });
                     worksheet.addImage(badgeImgId, {
@@ -953,23 +941,27 @@
                         editAs: 'oneCell'
                     });
 
-                    // İşlem Ekran Görüntüleri
+                    // İşlem Ekran Görüntüleri - Orijinal yüksek kalite korunuyor
                     for (let imgIndex = 0; imgIndex < item.images.length; imgIndex++) {
                         const imgData = item.images[imgIndex];
                         const dimensions = await getImageDimensions(imgData);
+                        
+                        // Görsel orijinal yüksek çözünürlüğünde eklenir
+                        const targetWidthPx = Math.min(800, dimensions.width);
                         const aspect = dimensions.height / dimensions.width;
-                        const targetHeightPx = TARGET_IMG_WIDTH_PX * aspect;
-                        const imgRowHeightPt = Math.max(40, targetHeightPx * 0.95);
+                        const targetHeightPx = targetWidthPx * aspect;
+                        const imgRowHeightPt = targetHeightPx * 0.95;
 
                         const rImg = worksheet.getRow(currentRow++);
                         rImg.height = imgRowHeightPt;
                         rImg.getCell(1).value = `GÖRSEL ${imgIndex + 1}`;
                         formatCell(rImg.getCell(1), true, 'FF1C2833', 'center');
 
-                        const imageId = workbook.addImage({ base64: imgData, extension: 'jpeg' });
+                        const extType = imgData.startsWith('data:image/png') ? 'png' : 'jpeg';
+                        const imageId = workbook.addImage({ base64: imgData, extension: extType });
                         worksheet.addImage(imageId, {
-                            tl: { col: 1, row: currentRow - 2, nativeCellOffset: { x: 10 * 9525, y: 5 * 9525 } },
-                            ext: { width: TARGET_IMG_WIDTH_PX, height: targetHeightPx },
+                            tl: { col: 1, row: currentRow - 2, nativeCellOffset: { x: 5 * 9525, y: 5 * 9525 } },
+                            ext: { width: targetWidthPx, height: targetHeightPx },
                             editAs: 'oneCell'
                         });
                     }
@@ -1013,73 +1005,7 @@
             cell.alignment = { vertical: bgColorHex === 'FF1C2833' ? 'middle' : 'center', horizontal: alignH, wrapText: wrap, indent: 1 };
         }
 
-        function exportToPDF() {
-            if (state.items.length === 0 && !state.generalNote) {
-                alert("Dışa aktarılacak veri bulunamadı.");
-                return;
-            }
-
-            const printDiv = document.createElement('div');
-            printDiv.style.width = '800px';
-            printDiv.style.padding = '30px';
-            printDiv.style.fontFamily = 'Arial, sans-serif';
-            printDiv.style.color = '#333';
-
-            let html = `
-                <div style="border-bottom: 2px solid #2563eb; padding-bottom: 15px; margin-bottom: 25px;">
-                    <h1 style="color: #2563eb; font-size: 24px; margin-bottom: 5px;">Vardiya Raporu</h1>
-                    <p style="margin: 0; font-size: 14px; color: #666;">Tarih: ${state.shiftDate} | Vardiya: ${state.currentShift}</p>
-                </div>
-            `;
-
-            if (state.generalNote) {
-                html += `
-                    <div style="background: #f8fafc; border-left: 4px solid #2563eb; padding: 15px; margin-bottom: 30px;">
-                        <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 14px; color: #1e293b;">Genel Özet</h3>
-                        <p style="margin: 0; font-size: 13px; white-space: pre-wrap;">${state.generalNote}</p>
-                    </div>
-                `;
-            }
-
-            state.items.forEach(item => {
-                let statusColor = '#3b82f6';
-                if(item.status === 'critical') statusColor = '#ef4444';
-                if(item.status === 'warning') statusColor = '#f59e0b';
-                if(item.status === 'action') statusColor = '#9333ea';
-
-                let imgHtml = item.images.map(img => `<img src="${img}" style="max-width: 100%; max-height: 400px; display: block; margin: 10px auto; border: 1px solid #ddd; border-radius: 4px;">`).join('');
-
-                html += `
-                    <div style="page-break-inside: avoid; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 25px; overflow: hidden;">
-                        <div style="background: ${statusColor}; color: white; padding: 10px 15px; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px;">
-                            <span>Saat: ${item.time} (${item.range})</span>
-                            <span style="text-transform: uppercase;">DURUM: ${item.status}</span>
-                        </div>
-                        <div style="padding: 15px; background: #fff;">
-                            ${imgHtml}
-                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
-                                <strong style="font-size: 13px; color: #475569;">Notlar:</strong>
-                                <p style="margin: 5px 0 0 0; font-size: 13px; white-space: pre-wrap;">${item.note || 'Not girilmedi.'}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            printDiv.innerHTML = html;
-            
-            const opt = {
-                margin:       10,
-                filename:     getExportFileName('pdf'),
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(printDiv).save();
-        }
-
-        function resizeImage(base64Str, maxWidth = 1920) {
+        function resizeImage(base64Str, maxWidth = 2560) {
             return new Promise((resolve) => {
                 const img = new Image();
                 img.onload = () => {
@@ -1087,8 +1013,11 @@
                     if (w > maxWidth) { h = Math.round(h * (maxWidth / w)); w = maxWidth; }
                     const cvs = document.createElement('canvas');
                     cvs.width = w; cvs.height = h;
-                    cvs.getContext('2d').drawImage(img, 0, 0, w, h);
-                    resolve(cvs.toDataURL('image/jpeg', 0.95));
+                    const ctx = cvs.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, w, h);
+                    resolve(cvs.toDataURL('image/png', 1.0));
                 };
                 img.src = base64Str;
             });
