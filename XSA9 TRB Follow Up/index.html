@@ -67,6 +67,17 @@
                 <i class="fas fa-trash-alt mr-1"></i> Temizle
             </button>
             
+            <!-- JSON İçe Aktar -->
+            <label class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded shadow-md transition text-sm font-bold flex items-center cursor-pointer">
+                <i class="fas fa-file-import mr-2"></i> İçe Aktar
+                <input type="file" accept=".json" class="hidden" onchange="importFromJson(event)">
+            </label>
+            
+            <!-- JSON Dışa Aktar -->
+            <button onclick="exportToJson()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded shadow-md transition text-sm font-bold flex items-center">
+                <i class="fas fa-file-export mr-2"></i> Dışa Aktar
+            </button>
+            
             <!-- Excel Çıktısı -->
             <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-500 text-white px-5 py-2 rounded shadow-md transition text-sm font-bold flex items-center">
                 <i class="fas fa-file-excel mr-2 text-lg"></i> Excel
@@ -734,8 +745,9 @@
 
                     const imagesHtml = item.images.map((img, idx) => `
                         <div class="relative group w-full mb-2 border border-gray-300 dark:border-gray-600 rounded">
-                            <img src="${img}" class="w-full h-auto object-contain rounded" alt="Kayıt">
-                            <button onclick="removeExtraImage(${item.id}, ${idx})" class="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="fas fa-times"></i></button>
+                            <!-- Tıklama özelliği ve cursor eklendi -->
+                            <img src="${img}" class="w-full h-auto object-contain rounded cursor-zoom-in" alt="Kayıt" onclick="openLightbox('${img}')">
+                            <button onclick="removeExtraImage(${item.id}, ${idx})" class="absolute top-2 right-2 bg-red-600/80 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition z-10"><i class="fas fa-times"></i></button>
                         </div>
                     `).join('');
 
@@ -1048,6 +1060,86 @@
             await initDB();
             await loadState();
         };
+        
+        /* --- Resim Görüntüleme (Lightbox) Fonksiyonları --- */
+        function openLightbox(imgSrc) {
+            document.getElementById('lightboxImg').src = imgSrc;
+            document.getElementById('imageLightbox').classList.remove('hidden');
+        }
+        
+        function closeLightbox(e) {
+            document.getElementById('imageLightbox').classList.add('hidden');
+            document.getElementById('lightboxImg').src = '';
+        }
+        
+        /* --- JSON Export (Dışa Aktar) --- */
+        function exportToJson() {
+            if (state.items.length === 0 && !state.generalNote) {
+                alert("Dışa aktarılacak veri bulunamadı.");
+                return;
+            }
+            
+            // Tüm state objesini (saat, notlar, resimler dahil) JSON formatına çeviriyoruz
+            const dataStr = JSON.stringify(state, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            
+            // Mevcut isimlendirme formatınızı kullanarak JSON indiriyoruz
+            const fileName = getExportFileName('json'); 
+            saveAs(blob, fileName);
+        }
+        
+        /* --- JSON Import (İçe Aktar) --- */
+        async function importFromJson(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+        
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    
+                    // Temel JSON doğrulama
+                    if (importedState && Array.isArray(importedState.items)) {
+                        if (confirm("Mevcut ekrandaki veriler silinecek ve yüklediğiniz dosyadaki veriler aktarılacak. Emin misiniz?")) {
+                            // Global state'i güncelliyoruz
+                            state = importedState;
+                            
+                            // IndexedDB'yi temizleyip yeni verileri yazıyoruz
+                            await dbClear('items');
+                            for (let item of state.items) {
+                                await dbPut('items', item);
+                            }
+                            
+                            await dbPut('settings', state.shiftDate, 'shiftDate');
+                            await dbPut('settings', state.currentShift, 'currentShift');
+                            await dbPut('settings', state.generalNote, 'generalNote');
+                            
+                            // Arayüzdeki inputları yeni state'e göre dolduruyoruz
+                            document.getElementById('shiftDate').value = state.shiftDate || '';
+                            document.getElementById('shiftSelect').value = state.currentShift || '';
+                            document.getElementById('generalNote').value = state.generalNote || '';
+                            
+                            render();
+                            alert("Veriler başarıyla içe aktarıldı!");
+                        }
+                    } else {
+                        alert("Geçersiz veya bozuk JSON formatı.");
+                    }
+                } catch (err) {
+                    alert("Dosya okunurken bir hata oluştu: " + err.message);
+                }
+                event.target.value = ''; // Aynı dosyanın tekrar seçilebilmesi için inputu sıfırlıyoruz
+            };
+            reader.readAsText(file);
+        }
     </script>
+    
+    <!-- Tam Ekran Resim (Lightbox) Modalı -->
+    <div id="imageLightbox" class="fixed inset-0 bg-black/90 hidden z-[60] flex items-center justify-center p-4 transition-opacity cursor-zoom-out" onclick="closeLightbox(event)">
+        <img id="lightboxImg" src="" class="max-w-full max-h-full object-contain rounded shadow-2xl cursor-default" onclick="event.stopPropagation()">
+        <button class="absolute top-4 right-4 text-white hover:text-gray-300 text-3xl" onclick="closeLightbox(event)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
 </body>
 </html>
