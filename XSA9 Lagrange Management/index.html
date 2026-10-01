@@ -174,7 +174,7 @@
 
         let lagrangeTemplates = [
             [
-                { t: "12.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6, pct: 8.660 },
+                { t: "00.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6, pct: 8.660 },
                 { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
                 { t: "1.45 - 3.30", r: 1.15, dur: 1.75, multiPct: 0.6, pct: 9.580 },
                 { t: "3.30 - 4.00", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
@@ -198,7 +198,7 @@
                 { t: "11.00 - 12.00", r: 0.975, dur: 1, multiPct: 0.6, pct: 3.920 }
             ],
             [
-                { t: "12.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6, pct: 8.660 },
+                { t: "00.00 - 1.30", r: 1.35, dur: 1.5, multiPct: 0.6, pct: 8.660 },
                 { t: "1.30 - 1.45", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
                 { t: "1.45 - 3.30", r: 1.15, dur: 1.75, multiPct: 0.6, pct: 9.580 },
                 { t: "3.30 - 4.00", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
@@ -223,7 +223,7 @@
                 { t: "9.30 - 11.45", r: 1.25, dur: 2.25, multiPct: 0.6, pct: 11.180 }
             ],
             [
-                { t: "12.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6, pct: 11.730 },
+                { t: "00.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6, pct: 11.730 },
                 { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
                 { t: "2.30 - 4.45", r: 1.2, dur: 2.25, multiPct: 0.6, pct: 9.600 },
                 { t: "4.45 - 5.15", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
@@ -246,7 +246,7 @@
                 { t: "9.30 - 11.45", r: 1.25, dur: 2.25, multiPct: 0.6, pct: 11.180 }
             ],
             [
-                { t: "12.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6, pct: 11.730 },
+                { t: "00.15 - 2.15", r: 1.35, dur: 2, multiPct: 0.6, pct: 11.730 },
                 { t: "2.15 - 2.30", r: 0, dur: 0.25, multiPct: 0.6, pct: 0 },
                 { t: "2.30 - 4.45", r: 1.2, dur: 2.25, multiPct: 0.6, pct: 9.600 },
                 { t: "4.45 - 5.15", r: 0, dur: 0.5, multiPct: 0.6, pct: 0 },
@@ -268,6 +268,23 @@
                 { t: "11.00 - 12.00", r: 0.98, dur: 1, multiPct: 0.6, pct: 3.920 }
             ]
         ];
+
+        // Saat dilimlerini her zaman 24 saatlik ve iki haneli göster.
+        // Örn: 00.00 - 01.30, 11.30 - 12.00, 12.15 - 14.15
+        function formatPlannerTimeRange(text) {
+            const m = String(text).match(
+                /^\s*(\d{1,2})[.:](\d{2})\s*-\s*(\d{1,2})[.:](\d{2})\s*$/
+            );
+
+            if (!m) return text;
+
+            const sh = String(Number(m[1])).padStart(2, '0');
+            const sm = m[2];
+            const eh = String(Number(m[3])).padStart(2, '0');
+            const em = m[4];
+
+            return `${sh}.${sm} - ${eh}.${em}`;
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('start-date').valueAsDate = new Date();
@@ -489,7 +506,7 @@
                         <tr class="${isBreak ? 'bg-slate-50 dark:bg-slate-900/30 text-slate-400 dark:text-slate-500' : isNonBreak ? 'bg-amber-50/70 dark:bg-amber-950/20 font-medium' : 'bg-white dark:bg-slate-800'} border-b border-slate-100 dark:border-slate-700/60 transition-colors">
                             <td class="px-3 py-1.5 whitespace-nowrap flex items-center space-x-2">
                                 ${isNonBreak && !isBreak ? '<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0" title="Mola saati olmayan aktif slot"></span>' : ''}
-                                <span class="${isNonBreak && !isBreak ? 'font-bold text-amber-800 dark:text-amber-300' : ''}">${row.t}</span>
+                                <span class="${isNonBreak && !isBreak ? 'font-bold text-amber-800 dark:text-amber-300' : ''}">${formatPlannerTimeRange(row.t)}</span>
                             </td>
                             <td class="px-2 py-1 text-center">
                                 <input type="number" step="0.01" value="${isBreak ? 0 : (row.pct || 0).toFixed(2)}" 
