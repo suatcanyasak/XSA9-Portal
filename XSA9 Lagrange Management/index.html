@@ -678,10 +678,8 @@
                 let lagrange = 0, multi = 0, single = 0, total = 0;
 
                 if (!isBreak) {
-                    // Plan * % = Toplam değerine eşitleniyor
                     total = capacity * ((row.pct || 0) / 100);
 
-                    // Lagrange HR = Toplam / Effective HR (Slot Süresi)
                     lagrange = row.dur > 0 ? (total / row.dur) : 0;
 
                     const mRate = row.multiPct;
